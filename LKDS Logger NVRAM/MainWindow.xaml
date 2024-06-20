@@ -38,13 +38,17 @@
 
                 <Label Grid.Row="0"  Grid.Column="3">Интервал опроса ЛБ (в минутах)</Label>
                 <Label Grid.Row="1"  Grid.Column="3">Подсветка изменений после</Label>
-                <Label Grid.Row="3"  Grid.Column="3">Очистка полей после добавления</Label>
-                <Label Grid.Row="4"  Grid.Column="3">Закрывать окно после добавления</Label>
+                <Label Grid.Row="2"  Grid.Column="3">Идентифик.</Label>
+                <Label Grid.Row="4"  Grid.Column="3">Очистка полей после добавления</Label>
+                <Label Grid.Row="5"  Grid.Column="3">Закрывать окно после добавления</Label>
+                <!-- для элемента ниже следует использовать TimePicker -->
                 <TextBox Grid.Row="0" Grid.Column="4" Width="100" x:Name="LBCallInterval"></TextBox>
                 <TextBox Grid.Row="1" Grid.Column="4" Width="100" x:Name="LBTimeChecked"></TextBox>
-                <CheckBox Grid.Row="3" Grid.Column="4" x:Name="CheckBoxInputClearing" Margin="0 5 0 0" Unchecked="InputsClearcheckBox_Unchecked" Checked="InputsClearcheckBox_Checked"></CheckBox>
-                <CheckBox Grid.Row="4" Grid.Column="4" x:Name="CheckBoxAddWindowClosing" Margin="0 5 0 0" Unchecked="WindowClosingcheckBox_Unchecked" Checked="WindowClosingcheckBox_Checked" IsChecked="True"></CheckBox>
-                <Button Grid.Row="2" Grid.Column="4" Width="100" x:Name="UniversalKeyButton" Click="UniversalKeyButtonClick">Применить</Button>
+
+                <TextBox Grid.Row="2" Grid.Column="4" Width="100" x:Name="PCIdentific"></TextBox>
+                <CheckBox Grid.Row="4" Grid.Column="4" x:Name="CheckBoxInputClearing" Margin="0 5 0 0" Unchecked="InputsClearcheckBox_Unchecked" Checked="InputsClearcheckBox_Checked"></CheckBox>
+                <CheckBox Grid.Row="5" Grid.Column="4" x:Name="CheckBoxAddWindowClosing" Margin="0 5 0 0" Unchecked="WindowClosingcheckBox_Unchecked" Checked="WindowClosingcheckBox_Checked" IsChecked="True"></CheckBox>
+                <Button Grid.Row="3" Grid.Column="4" Width="100" x:Name="UniversalKeyButton" Click="UniversalKeyButtonClick">Применить</Button>
             </Grid>
             <StackPanel Orientation="Horizontal">
                 <TextBlock Margin="220 0 0 0"  Width="130" TextAlignment="Center">Имя</TextBlock>

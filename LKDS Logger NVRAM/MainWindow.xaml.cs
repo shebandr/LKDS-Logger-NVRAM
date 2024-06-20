@@ -342,7 +342,7 @@ namespace LKDS_Logger_NVRAM
                 UsingUniversalKey = false;
             } else
             {
-                UniversalKeyError.Content = "";
+                UniversalKeyError.Content = "Ключ задан";
                 UsingUniversalKey = true;
             }
         }

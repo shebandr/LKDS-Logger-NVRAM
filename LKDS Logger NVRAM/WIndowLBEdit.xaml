@@ -1,0 +1,47 @@
+﻿<Window x:Class="LKDS_Logger_NVRAM.WIndowLBEdit"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:LKDS_Logger_NVRAM"
+        mc:Ignorable="d"
+        Title="WIndowLBEdit" Height="600" Width="450">
+    <Grid x:Name="inputFields" Margin="10, 10,10,10"  VerticalAlignment="Top" >
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="25"  />
+            <RowDefinition Height="25"  />
+            <RowDefinition Height="25"  />
+            <RowDefinition Height="25"  />
+            <RowDefinition Height="25"  />
+            <RowDefinition Height="25" />
+            <RowDefinition Height="25" />
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="210" />
+            <ColumnDefinition Width="100" />
+            <ColumnDefinition Width="100" />
+
+        </Grid.ColumnDefinitions>
+
+        <RadioButton Name="rb0" Checked="LBTypeConnect" Grid.Row="0"  Grid.Column="0" Tag="1" Content="Через LKDSCloud по ключу"></RadioButton>
+        <RadioButton Name="rb1" Checked="LBTypeConnect" Grid.Row="0"  Grid.Column="1"  Tag="0" Content="По IP сети"></RadioButton>
+        
+        
+        <Label Grid.Row="1"  Grid.Column="0">Имя </Label>
+        <Label Grid.Row="2"  Grid.Column="0">IP адрес</Label>
+        <Label Grid.Row="3"  Grid.Column="0">Порт данных</Label>
+        <Label Grid.Row="4"  Grid.Column="0">Ключ для этого ЛБ</Label>
+        <Label Grid.Row="5"  Grid.Column="0">Идентификатор </Label>
+        <Label Grid.Row="6"  Grid.Column="0" x:Name="LBAddErrorLabel" Foreground="Red"></Label>
+        <TextBox Grid.Row="1" Grid.Column="1" Width="100" x:Name="LBName"></TextBox>
+        <TextBox Grid.Row="2" Grid.Column="1" Width="100" x:Name="LBIPString"></TextBox>
+        <TextBox Grid.Row="3" Grid.Column="1" Width="100" x:Name="LBPortString"></TextBox>
+        <TextBox Grid.Row="4" Grid.Column="1" Width="100" x:Name="LBKey"></TextBox>
+        <TextBox Grid.Row="5" Grid.Column="1" Width="100" x:Name="LBID"></TextBox>
+        <Button Grid.Row="6" Grid.Column="1" Width="100" x:Name="buttonLBAdd"></Button>
+        <Button Grid.Row="7" Grid.Column="2" Width="100" x:Name="buttonLBRedactCancel" Click="ButtonClickRedactCancel">Отменить</Button>
+
+    </Grid>
+</Window>

@@ -1,0 +1,90 @@
+﻿<Window x:Class="LKDS_Logger_NVRAM.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:LKDS_Logger_NVRAM"
+        mc:Ignorable="d"
+        Title="LKDS LOGGER NVRAM" Height="600" Width="800">
+    <ScrollViewer VerticalScrollBarVisibility="Visible" Height="auto">
+        <StackPanel>
+            <Grid x:Name="inputFields" Margin="10, 10,10,10" Height="150" VerticalAlignment="Top" >
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="25"  />
+                    <RowDefinition Height="25"  />
+                    <RowDefinition Height="25"  />
+                    <RowDefinition Height="25"  />
+                    <RowDefinition Height="25" />
+                    <RowDefinition Height="25" />
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="210" />
+                    <ColumnDefinition Width="100" />
+                    <ColumnDefinition Width="100" />
+                    <ColumnDefinition Width="200" />
+                    <ColumnDefinition Width="100" />
+                </Grid.ColumnDefinitions>
+                <Label Grid.Row="0"  Grid.Column="0">Ключ для всех ЛБ</Label>
+                <Label Grid.Row="1"  Grid.Column="0">Использовать ключ для новых ЛБ</Label>
+                <Label Grid.Row="2"  Grid.Column="0">Задать универсальный ключ</Label>
+                <TextBox Grid.Row="0" Grid.Column="1" Width="100" x:Name="LBUniversalKey"></TextBox>
+                <CheckBox Grid.Row="1" Grid.Column="1" x:Name="CheckBoxUniversalKey" Margin="0 5 0 0" Unchecked="UniversalKeyCheckBox_Unchecked" Checked="UniversalKeyCheckBox_Checked"></CheckBox>
+                <Button Grid.Row="2" Grid.Column="1" Width="100" x:Name="buttonSettingsApply" Click="UniversalKeyButtonClick">Задать</Button>
+                <Label Grid.Row="3"  Grid.Column="0" x:Name="UniversalKeyError"></Label>
+
+
+
+                <Label Grid.Row="0"  Grid.Column="3">Интервал опроса ЛБ (в минутах)</Label>
+                <Label Grid.Row="1"  Grid.Column="3">Подсветка изменений после</Label>
+                <Label Grid.Row="3"  Grid.Column="3">Очистка полей после добавления</Label>
+                <Label Grid.Row="4"  Grid.Column="3">Закрывать окно после добавления</Label>
+                <TextBox Grid.Row="0" Grid.Column="4" Width="100" x:Name="LBCallInterval"></TextBox>
+                <TextBox Grid.Row="1" Grid.Column="4" Width="100" x:Name="LBTimeChecked"></TextBox>
+                <CheckBox Grid.Row="3" Grid.Column="4" x:Name="CheckBoxInputClearing" Margin="0 5 0 0" Unchecked="InputsClearcheckBox_Unchecked" Checked="InputsClearcheckBox_Checked"></CheckBox>
+                <CheckBox Grid.Row="4" Grid.Column="4" x:Name="CheckBoxAddWindowClosing" Margin="0 5 0 0" Unchecked="WindowClosingcheckBox_Unchecked" Checked="WindowClosingcheckBox_Checked" IsChecked="True"></CheckBox>
+                <Button Grid.Row="2" Grid.Column="4" Width="100" x:Name="UniversalKeyButton" Click="UniversalKeyButtonClick">Применить</Button>
+            </Grid>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Margin="220 0 0 0"  Width="130" TextAlignment="Center">Имя</TextBlock>
+                <TextBlock Margin="0 0 0 0" Width="140" TextAlignment="Center">IP:порт данных</TextBlock>
+                <TextBlock Margin="5 0 0 0" Width="60" TextAlignment="Center">Id</TextBlock>
+                <TextBlock Margin="5 0 0 0" Width="100" TextAlignment="Center">Текущий статус</TextBlock>
+                <TextBlock Margin="5 0 0 0" Width="100" TextAlignment="Center">Изменён</TextBlock>
+               
+            </StackPanel>
+            <ListBox Width="800" x:Name="LBList" ScrollViewer.HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Left" MinHeight="370">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Border Background="AliceBlue" BorderBrush="Black" BorderThickness="1" CornerRadius="2" >
+                            <StackPanel Orientation="Horizontal" CanHorizontallyScroll="False">
+                                <Button Width="20" Height="20" Click="LBDelButton_Click" Tag="{Binding Path=LBId}" Margin="5 0">
+                                    <Image Source="resources\cross.png" />
+                                </Button>
+                                <Button  Width="20" Height="20"  Click="LBRedactButton_Click" Tag="{Binding Path=LBId}" Margin="0 0 0 0">
+                                    <Image Source="resources\edit.png" />
+                                </Button>
+                                <StackPanel Orientation="Horizontal" MouseLeftButtonDown ="LBRowClick" Tag="{Binding Path=LBId}" >
+                                    <TextBlock x:Name="LBNameSPE1" Width="250" TextAlignment="Center" Text="{Binding Path=LBName}"></TextBlock>
+                                    <TextBlock x:Name="LBIP1" Width="120" TextAlignment="Right"  Text="{Binding Path=LBIpString}"></TextBlock>
+                                    <TextBlock>:</TextBlock>
+                                    <TextBlock x:Name="LBPort1" Width="60" TextAlignment="Left" Text="{Binding Path=LBPort}"></TextBlock>
+                                    <TextBlock x:Name="LBId1" Width="60" TextAlignment="Center" Text="{Binding Path=LBId}"></TextBlock>
+                                    <TextBlock x:Name="LBStatus" Width="100" TextAlignment="Center" Text="{Binding Path=LBStatus}"></TextBlock>
+                                    <TextBlock x:Name="LBLastChange" Width="100" TextAlignment="Center" Text="{Binding Path=LBLastChange}"></TextBlock>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+                <ListBox.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Вставить описание ЛБ" Click="AddLBButton_Click"></MenuItem>
+                    </ContextMenu>
+                </ListBox.ContextMenu>
+
+            </ListBox>
+        </StackPanel>
+    </ScrollViewer>
+</Window>

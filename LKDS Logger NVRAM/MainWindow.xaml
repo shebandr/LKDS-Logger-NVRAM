@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:local="clr-namespace:LKDS_Logger_NVRAM"
         mc:Ignorable="d"
         Title="LKDS LOGGER NVRAM" Height="600" Width="800">
@@ -22,9 +23,9 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="210" />
                     <ColumnDefinition Width="100" />
-                    <ColumnDefinition Width="100" />
+                    <ColumnDefinition Width="30" />
                     <ColumnDefinition Width="200" />
-                    <ColumnDefinition Width="100" />
+                    <ColumnDefinition Width="200" />
                 </Grid.ColumnDefinitions>
                 <Label Grid.Row="0"  Grid.Column="0">Ключ для всех ЛБ</Label>
                 <Label Grid.Row="1"  Grid.Column="0">Использовать ключ для новых ЛБ</Label>
@@ -33,22 +34,27 @@
                 <CheckBox Grid.Row="1" Grid.Column="1" x:Name="CheckBoxUniversalKey" Margin="0 5 0 0" Unchecked="UniversalKeyCheckBox_Unchecked" Checked="UniversalKeyCheckBox_Checked"></CheckBox>
                 <Button Grid.Row="2" Grid.Column="1" Width="100" x:Name="buttonSettingsApply" Click="UniversalKeyButtonClick">Задать</Button>
                 <Label Grid.Row="3"  Grid.Column="0" x:Name="UniversalKeyError"></Label>
+                <Label Grid.Row="4"  Grid.Column="0">Очистка полей после добавления</Label>
+                <Label Grid.Row="5"  Grid.Column="0">Закрывать окно после добавления</Label>
+                <CheckBox Grid.Row="4" Grid.Column="1" x:Name="CheckBoxInputClearing" Margin="0 5 0 0" Unchecked="InputsClearcheckBox_Unchecked" Checked="InputsClearcheckBox_Checked"></CheckBox>
+                <CheckBox Grid.Row="5" Grid.Column="1" x:Name="CheckBoxAddWindowClosing" Margin="0 5 0 0" Unchecked="WindowClosingcheckBox_Unchecked" Checked="WindowClosingcheckBox_Checked" IsChecked="True"></CheckBox>
 
 
-
-                <Label Grid.Row="0"  Grid.Column="3">Интервал опроса ЛБ (в минутах)</Label>
+                <Label Grid.Row="0"  Grid.Column="3">Интервал опроса ЛБ</Label>
                 <Label Grid.Row="1"  Grid.Column="3">Подсветка изменений после</Label>
-                <Label Grid.Row="2"  Grid.Column="3">Идентифик.</Label>
-                <Label Grid.Row="4"  Grid.Column="3">Очистка полей после добавления</Label>
-                <Label Grid.Row="5"  Grid.Column="3">Закрывать окно после добавления</Label>
+                <Label Grid.Row="2"  Grid.Column="3">Начало опроса ЛБ</Label>
+                <Label Grid.Row="3"  Grid.Column="3">Идентифик.</Label>
+                <Label Grid.Row="4"  Grid.Column="3" x:Name="SettingsErrorLabel"></Label>
                 <!-- для элемента ниже следует использовать TimePicker -->
-                <TextBox Grid.Row="0" Grid.Column="4" Width="100" x:Name="LBCallInterval"></TextBox>
-                <TextBox Grid.Row="1" Grid.Column="4" Width="100" x:Name="LBTimeChecked"></TextBox>
-
-                <TextBox Grid.Row="2" Grid.Column="4" Width="100" x:Name="PCIdentific"></TextBox>
-                <CheckBox Grid.Row="4" Grid.Column="4" x:Name="CheckBoxInputClearing" Margin="0 5 0 0" Unchecked="InputsClearcheckBox_Unchecked" Checked="InputsClearcheckBox_Checked"></CheckBox>
-                <CheckBox Grid.Row="5" Grid.Column="4" x:Name="CheckBoxAddWindowClosing" Margin="0 5 0 0" Unchecked="WindowClosingcheckBox_Unchecked" Checked="WindowClosingcheckBox_Checked" IsChecked="True"></CheckBox>
-                <Button Grid.Row="3" Grid.Column="4" Width="100" x:Name="UniversalKeyButton" Click="UniversalKeyButtonClick">Применить</Button>
+                <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="4" >
+                    <xctk:IntegerUpDown x:Name="HoursUpDown" Minimum="0" Maximum="96" Width="45" Margin=" 0 2 2 2"/>
+                    <TextBlock Text=":" VerticalAlignment="Center" Margin="2"/>
+                    <xctk:IntegerUpDown x:Name="MinutesUpDown" Minimum="0" Maximum="59" Width="45" Margin="2 2 0 2"/>
+                </StackPanel>
+                <xctk:DateTimePicker Grid.Row="1" Grid.Column="4" Width="170" x:Name="LBTimeCheck" Margin="0 0 30 0"></xctk:DateTimePicker>
+                <xctk:DateTimePicker Grid.Row="2" Grid.Column="4" Width="170" x:Name="LBCheckStart" Margin="0 0 30 0"></xctk:DateTimePicker>
+                <TextBox Grid.Row="3" Grid.Column="4" Width="100" x:Name="PCIdentific" Margin=" 0 0 100 0"></TextBox>
+                <Button Grid.Row="4" Grid.Column="4" Width="100" x:Name="SettingsApplyButton" Click="SettingsApplyButtonClick" Margin=" 0 0 100 0">Применить</Button>
             </Grid>
             <StackPanel Orientation="Horizontal">
                 <TextBlock Margin="220 0 0 0"  Width="130" TextAlignment="Center">Имя</TextBlock>

@@ -37,8 +37,6 @@ namespace LKDS_Logger_NVRAM
         {
             InitializeComponent();
             LKDSFramework.DriverV7Net driverV7Net = new LKDSFramework.DriverV7Net();
-            driverV7Net.Init();
-            driverV7Net.Close();
             LB LBTemp = new LB();
             LBTemp.LBName = "qwertyuiopasdfgh";
             LBTemp.LBKey= "qwerty123";
@@ -51,15 +49,8 @@ namespace LKDS_Logger_NVRAM
             LBs = new ObservableCollection<LB> { LBTemp };
             LBList.ItemsSource = LBs;
             Console.WriteLine(LBs[0].LBName);
-            Image UICross = (Image)this.FindName("UICross");
-            if (UICross != null)
-            {
-                Console.WriteLine("крестик найден");
-                // Теперь вы можете работать с элементом UICross
-            } else
-            {
-                Console.WriteLine("крестик не найден");
-            }
+            LBAddConnect lBAddConnect = new LBAddConnect();
+            lBAddConnect.StartService();
 
         }
 
@@ -322,9 +313,83 @@ namespace LKDS_Logger_NVRAM
 
         private void SettingsApplyButtonClick(object sender, RoutedEventArgs e)
         {
+            List<string> ErrorList = new List<string>();
+            int Hours = -1;
+            if (Int32.TryParse(HoursUpDown.Text, out Hours))
+            {
 
-            MessageBox.Show("Кнопка настроек нажата");
+            }
+            else
+            {
+                ErrorList.Add("Часы");
+            }
+            int Minutes = -1;
+            if (Int32.TryParse(MinutesUpDown.Text, out Minutes))
+            {
+
+
+            }
+            else
+            {
+                ErrorList.Add("Минуты");
+
+            }
+
+            DateTime? DateTimeCheckAfter = LBTimeCheck.Value;
+            if (DateTimeCheckAfter.HasValue)
+            {
+
+                Console.WriteLine("Selected DateTime: " + DateTimeCheckAfter.Value.ToString("yyyy-MM-dd HH:mm:ss"));
+            }
+            else
+            {
+
+                ErrorList.Add("Время подсветки");
+            }
+
+            DateTime? DateTimeCheckStart = LBCheckStart.Value;
+            if (DateTimeCheckStart.HasValue)
+            {
+
+                Console.WriteLine("Selected DateTime: " + DateTimeCheckStart.Value.ToString("yyyy-MM-dd HH:mm:ss"));
+            }
+            else
+            {
+
+                ErrorList.Add("Пустое начало опроса");
+            }
+            int Identific = -1;
+            if (Int32.TryParse(PCIdentific.Text, out Identific))
+            {
+
+
+            }
+            else
+            {
+                ErrorList.Add("Идентифик.");
+
+            }
+            if (ErrorList.Count() > 0)
+            {
+
+                string tempError = "Ошибки с: ";
+                for (int i = 0; i < ErrorList.Count() - 1; i++)
+                {
+                    if (ErrorList[i] != "Такой ЛБ существует")
+                    {
+                        tempError += ErrorList[i] + ", ";
+                    }
+
+                }
+                tempError += ErrorList[ErrorList.Count() - 1];
+                SettingsErrorLabel.Content = tempError;
+            } else
+            {
+                SettingsErrorLabel.Content = "Применено";
+                // реализовать тут засовывание переменных в глобальные настройки
+            }
         }
+
         private void EditLBWindow_Closed(object sender, System.EventArgs e)
         {
             LBIsRedacted = false;
@@ -347,6 +412,7 @@ namespace LKDS_Logger_NVRAM
             }
         }
 
-        
+
+
     }
 }

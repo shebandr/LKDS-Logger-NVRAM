@@ -38,20 +38,18 @@ namespace LKDS_Logger_NVRAM
             InitializeComponent();
             LKDSFramework.DriverV7Net driverV7Net = new LKDSFramework.DriverV7Net();
             LB LBTemp = new LB();
-            LBTemp.LBName = "qwertyuiopasdfgh";
-            LBTemp.LBKey= "qwerty123";
-            LBTemp.LBId = 55555;
-            LBTemp.LBIpString = "127.123.213.121";
-            LBTemp.LBPort = 12345;
+            LBTemp.LBName = "123";
+            LBTemp.LBKey= "qwerty1234";
+            LBTemp.LBId = 51191;
+            LBTemp.LBIpString = "LKDSCloud";
+            LBTemp.LBPort = 0;
             LBTemp.LBStatus = "отвечает";
             LBTemp.LBLastChange = "01.01.2003 12:49";
 
             LBs = new ObservableCollection<LB> { LBTemp };
             LBList.ItemsSource = LBs;
             Console.WriteLine(LBs[0].LBName);
-            LBAddConnect lBAddConnect = new LBAddConnect();
-            lBAddConnect.StartService();
-
+            
         }
 
 
@@ -274,6 +272,13 @@ namespace LKDS_Logger_NVRAM
 
         private void LBRowClick(object sender, RoutedEventArgs e)
         {
+
+            LBAddConnect lBAddConnect = new LBAddConnect();
+            lBAddConnect.DBInitiate();
+            List<string> temp = lBAddConnect.GetDump(LBs[0]);
+            Console.WriteLine("принятые данные в мв: " + string.Join(" ", temp));
+
+
             StackPanel button = (StackPanel)sender;
             Console.Write(button.Tag);
             int tempId = Int32.Parse(button.Tag.ToString());

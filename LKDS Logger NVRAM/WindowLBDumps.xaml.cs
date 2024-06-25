@@ -35,10 +35,13 @@ namespace LKDS_Logger_NVRAM
             Title = currentLB.LBName;
 
             
-            string[] allfiles = Directory.GetFiles("Dumps\\" + currentLB.LBId);
+  /*          string[] allfiles = new string[2];
+            allfiles[0] = "q";
+            allfiles[1] = "w";
+  */          
 
             Dumps = new ObservableCollection<Dump> { };
-            foreach (string filename in allfiles)
+/*            foreach (string filename in allfiles)
             {
                 Dump DumpTemp = new Dump();
                 DumpTemp.LBId = currentLB.LBId;
@@ -50,7 +53,7 @@ namespace LKDS_Logger_NVRAM
                 Dumps.Add(DumpTemp);
                 Console.WriteLine(filename);
             }
-
+*/
             DumpList.ItemsSource = Dumps;
 
 

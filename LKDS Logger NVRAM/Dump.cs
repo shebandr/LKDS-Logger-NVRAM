@@ -11,5 +11,6 @@ namespace LKDS_Logger_NVRAM
         public string TimeDate { get; set; }
         public int LBId { get; set; }
         public bool IsChanged { get; set; }
+        public List<byte> Data { get; set; }
     }
 }

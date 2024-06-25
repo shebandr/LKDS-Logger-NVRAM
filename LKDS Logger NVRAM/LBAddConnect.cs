@@ -7,6 +7,10 @@ using System.Text;
 using System.Threading.Tasks;
 using LKDSFramework.Packs.DataDirect;
 using System.Windows.Media;
+using System.Threading;
+using System.Data.SQLite;
+using System.Data.Common;
+using System.Data;
 
 namespace LKDS_Logger_NVRAM
 {
@@ -17,26 +21,40 @@ namespace LKDS_Logger_NVRAM
         {
             Console.WriteLine("подключение фреймворка");
             DriverV7Net driver = new DriverV7Net();
-            // в теории, 4 строки ниже отвечают за получение пакетов
             driver.OnDevChange = delegate (DeviceV7 dev)
             {
                 Console.WriteLine($"Устройство {dev} {(dev.isOnline ? "Вышло на связь" : "Ушло со связи")}");
+                
+                /*                PackV7RestartAsk restartAsk = new PackV7RestartAsk();
+
+                                restartAsk.UnitID = 51191;
+                                Console.WriteLine("до отправки" + restartAsk.State.ToString() + " " + restartAsk.Data.ToString() + " " + restartAsk.Type.ToString());
+                                if ((restartAsk.PackID = driver.SendPack(restartAsk)) == 0)
+                                {
+                                    Console.WriteLine("Не получилось поставить в очередь пакет");
+
+                                }
+                                Console.WriteLine("после отправки" + restartAsk.State.ToString() + " " + restartAsk.Data.ToString() + " " + restartAsk.Type.ToString());*/
             };
             /*driver.OnSubChange = delegate (SubDeviceV7 sub)
             {
                 Console.WriteLine($"Устройство CAN {sub} в {sub.Parrent} {(sub.isOnline ? "Вышло на связь" : "Ушло со связи")}");
             };*/
-            /*            driver.OnReceiveData = delegate (PackV7 pack)
-                        {
-                            if (pack is LKDSFramework.Packs.DataDirect.PackV7WhoAns)
-                            {
-                                LKDSFramework.Packs.DataDirect.PackV7WhoAns who = pack as LKDSFramework.Packs.DataDirect.PackV7WhoAns;
-                                VirtualDeviceV7 dev = who.Device;
-                                Console.WriteLine($"Кто ты от {dev.DevClass.GetNameOfEnum()}{who.UnitID}({who.CanID}):{dev.SoftVer}" + " " + who.Data.ToString());
-                            }
+            driver.OnReceiveData = delegate (PackV7 pack)
+            {
+                if (pack is LKDSFramework.Packs.DataDirect.PackV7NVRAMAns)
+                {
+                    LKDSFramework.Packs.DataDirect.PackV7NVRAMAns dump = pack as LKDSFramework.Packs.DataDirect.PackV7NVRAMAns;
+                    Console.Write("данные получены: " + dump.Data.Count() + " ");
+                    foreach (var i in dump.Data)
+                    {
+                        Console.Write(i + " ");
+                    }
+                    Console.WriteLine();
+                }
 
-                        };
-            */
+            };
+
             if (driver.Init())
             {
                 DeviceV7 dev = new DeviceV7()
@@ -47,27 +65,199 @@ namespace LKDS_Logger_NVRAM
                     Pass = "qwerty1234"
                 };
                 driver.AddDevice(ref dev);
-                PackV7 pack = new PackV7();
-                PackV7NVRAMAsk nvramAsk = new PackV7NVRAMAsk();
-                Union16 union16 = new Union16();
-                union16.Value = 10;
-                nvramAsk.Address = union16;
-                nvramAsk.NVRAMLen = 128;
-                nvramAsk.isWriteNVRAM = false;
-                if ((nvramAsk.PackID = driver.SendPack(nvramAsk)) == 0)
-                {
-                    Console.WriteLine("Не получилось поставить в очередь пакет");
- 
-                }
-                var a = driver.SendPack(nvramAsk);
-                Console.WriteLine(a);
-                PackV7NVRAMAns nvramAns = new PackV7NVRAMAns(nvramAsk);
-                Console.WriteLine("результат запроса: " + nvramAsk.NVRAM.Count().ToString());
-                // код выше не работает, почему - хз, сделал как в сендере, завтра надо будет спросить 
+                for(int i = 0; i < 65536; i += 255) {
+                    PackV7NVRAMAsk nvramAsk = new PackV7NVRAMAsk();
+                    Union16 union16 = new Union16();
+                    union16.Value = (short)i;
+                    nvramAsk.Address = union16;
+                    nvramAsk.NVRAMLen = 255;
+                    nvramAsk.isWriteNVRAM = false;
+                    nvramAsk.UnitID = 51191;
+                    if ((nvramAsk.PackID = driver.SendPack(nvramAsk)) == 0)
+                    {
+                        Console.WriteLine("Не получилось поставить в очередь пакет");
 
-                // driver.Close();
+                    }
+                }
+
+
+                 driver.Close();
             }
         }
 
+
+        private static ManualResetEvent doneEvent = new ManualResetEvent(false);
+        public List<string> GetDump(LB LBAsked)
+        {
+            int DumpSizeButes = 64;
+            int PacketSize = 64;
+            int BytesCount = 0;
+            int StartByte = 0;
+            List<byte> dumpBytes = new List<byte>();
+            TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>();
+            int flag = 0;
+            DriverV7Net driver = new DriverV7Net();
+
+            driver.OnReceiveData = delegate (PackV7 pack)
+            {
+                if (pack is LKDSFramework.Packs.DataDirect.PackV7NVRAMAns)
+                {
+                    LKDSFramework.Packs.DataDirect.PackV7NVRAMAns dump = pack as LKDSFramework.Packs.DataDirect.PackV7NVRAMAns;
+                    Console.Write("данные получены: " + dump.Data.Count() + " ");
+                    foreach (var i in dump.Data)
+                    {
+                        if (flag > 4)
+                        {
+                            dumpBytes.Add(i);
+
+                        }
+                        flag++;
+                        Console.Write(i + " ");
+                        BytesCount++;
+
+                    }
+                    Console.WriteLine();
+                }
+
+
+                doneEvent.Set();
+
+            };
+
+            if (driver.Init())
+            {
+                DeviceV7 dev;
+                if (LBAsked.LBIpString == "LKDSCloud")
+                {
+
+                    dev = new DeviceV7()
+                    {
+                        IP = DeviceV7.CloudIP,
+                        Port = DeviceV7.CloudPort,
+                        UnitID = (uint)LBAsked.LBId,
+                        Pass = LBAsked.LBKey
+                    };
+                } else
+                {
+                    dev = new DeviceV7()
+                    {
+                        IP = LBAsked.LBIpString,
+                        Port = LBAsked.LBPort,
+                        UnitID = (uint)LBAsked.LBId,
+                        Pass = LBAsked.LBKey
+                    };
+                }
+
+                driver.AddDevice(ref dev);
+                for (int i = StartByte; i < DumpSizeButes; i += PacketSize)
+                {
+                    PackV7NVRAMAsk nvramAsk = new PackV7NVRAMAsk();
+                    Union16 union16 = new Union16();
+                    union16.Value = (short)i;
+                    nvramAsk.Address = union16;
+                    nvramAsk.NVRAMLen = (byte)PacketSize;
+                    nvramAsk.isWriteNVRAM = false;
+                    nvramAsk.UnitID = 51191;
+                    if ((nvramAsk.PackID = driver.SendPack(nvramAsk)) == 0)
+                    {
+                        Console.WriteLine("Не получилось поставить в очередь пакет");
+
+                    }
+                }
+            }
+
+
+            while (true)
+            {
+                doneEvent.WaitOne();
+                if (BytesCount == DumpSizeButes)
+                {
+                    string tempStrDump = BitConverter.ToString(dumpBytes.ToArray()).Replace("-", string.Empty);
+                    List<string> dumpStr = new List<string>();
+                    for (int i = 0; i < dumpBytes.Count / 2; i++)
+                    {
+                        dumpStr.Add(tempStrDump[i * 2].ToString());
+                        dumpStr.Add(tempStrDump[i * 2 + 1].ToString());
+                    }
+                    driver.Close();
+                    return dumpStr;
+                }
+            }
+
+           
+        }
+
+        public void FromLBToSQLite(List<LB> lBs)
+        {
+            for(int i = 0; i < lBs.Count;)
+            {
+                LB lb = lBs[i];
+                List<string> ActualDump = GetDump(lb);
+                List<string> LastDump = new List<string>();
+
+                // ^ вызов функции по получению последнего дампа из бд
+                if(DumpsComparation(LastDump, ActualDump))
+                {
+                    //дамп отличается
+                } else
+                {
+                    //дамп не отличается
+                }
+            }
+        }
+
+        public bool DumpsComparation(List<string> a, List<string> b)
+        {
+            bool flag = false;
+
+            for(int i = 0; i < a.Count; i++)
+            {
+                if (a[i] != b[i])
+                {
+                    flag = true;
+                }
+            }
+
+            return flag;
+        }
+        public void DBInitiate()
+        {
+
+            string baseName = "LBDumps.db3";
+            SQLiteConnection.CreateFile(baseName);
+            SQLiteFactory factory = (SQLiteFactory)DbProviderFactories.GetFactory("System.Data.SQLite");
+            using (SQLiteConnection connection = (SQLiteConnection)factory.CreateConnection())
+            {
+                connection.ConnectionString = "Data Source = " + baseName;
+                connection.Open();
+                using (SQLiteCommand command = new SQLiteCommand(connection))
+                {
+                    command.CommandText = @"CREATE TABLE IF NOT EXISTS [LBs] (
+                    [inner_id] integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+                    [id] integer NOT NULL,
+                    [name] char(100) NOT NULL,
+                    [key] char(100) NOT NULL,
+                    [ip] char(100) NOT NULL,
+                    [port] integer NOT NULL,
+                    [status] char(100) NOT NULL,
+                    [last_change] char(100) NOT NULL,
+                    [las_dump] char(100) NOT NULL
+                    );";
+                    command.CommandType = CommandType.Text;
+                    command.ExecuteNonQuery();
+                }
+                using (SQLiteCommand command = new SQLiteCommand(connection))
+                {
+                    command.CommandText = @"CREATE TABLE IF NOT EXISTS [Dumps] (
+                    [idDump] integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+                    [id] integer NOT NULL,
+                    [data] char(150) NOT NULL,
+                    [time] char(100) NOT NULL
+                    );";
+                    command.CommandType = CommandType.Text;
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
     }
 }

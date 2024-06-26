@@ -14,6 +14,7 @@ namespace LKDS_Logger_NVRAM
         public string LBIpString { get; set; }
         public int LBPort { get; set; }
         public string LBLastChange { get; set; }
+        public string LBLastDump { get; set; }
         public string LBStatus { get; set; }
     }
 }

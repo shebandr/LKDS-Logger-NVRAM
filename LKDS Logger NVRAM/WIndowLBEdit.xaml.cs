@@ -24,6 +24,7 @@ namespace LKDS_Logger_NVRAM
         private string TempIpString = "";
         private string TempPortString = "";
         private int LBConnectType = 0;
+        private LBAddConnect lBAddConnect = new LBAddConnect();
         public WIndowLBEdit(MainWindow MW)
         {
             InitializeComponent();
@@ -128,6 +129,7 @@ namespace LKDS_Logger_NVRAM
                 LBTemp.LBKey = LBKey.Text;
                 LBTemp.LBStatus = WMG.LBs[RedactingLB].LBStatus;
                 LBTemp.LBLastChange = WMG.LBs[RedactingLB].LBLastChange;
+                LBTemp.LBLastDump = WMG.LBs[RedactingLB].LBLastDump;
                 WMG.LBs[RedactingLB] = LBTemp;
                 if(WMG.WindowsClosing == true)
                 {
@@ -208,9 +210,10 @@ namespace LKDS_Logger_NVRAM
                 LBDataTemp.LBKey = input[2];
                 LBAddErrorLabel.Content = "";
                 LBDataTemp.LBStatus = "отвечает";
-                LBDataTemp.LBLastChange = "01.01.2003 12:49";
+                LBDataTemp.LBLastChange = "никогда";
+                LBDataTemp.LBLastDump = "никогда";
                 WMG.LBs.Add(LBDataTemp);
-                Directory.CreateDirectory("Dumps\\" + LBDataTemp.LBId.ToString());
+                lBAddConnect.LBToSQL(LBDataTemp);
                 Console.WriteLine("успешно добавлено: " + WMG.LBs[WMG.LBs.Count - 1].LBName + WMG.LBs[WMG.LBs.Count - 1].LBId + WMG.LBs[WMG.LBs.Count - 1].LBKey + WMG.LBs[WMG.LBs.Count - 1].LBIpString + WMG.LBs[WMG.LBs.Count - 1].LBPort + WMG.LBs[WMG.LBs.Count - 1].LBStatus + WMG.LBs[WMG.LBs.Count - 1].LBLastChange);
                 if (WMG.InputsClear)
                 {

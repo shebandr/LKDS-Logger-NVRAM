@@ -89,18 +89,19 @@ namespace LKDS_Logger_NVRAM
         private string baseName = "LBDumps.db3";
 
         private static ManualResetEvent doneEvent = new ManualResetEvent(false);
-        public List<string> GetDump(LB LBAsked)
+        public async Task<List<string>> GetDump(LB LBAsked)
         {
             int DumpSizeBites = 64;
             int PacketSize = 64;
             int BytesCount = 0;
             int StartByte = 0;
             List<byte> dumpBytes = new List<byte>();
-            TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>();
             int flag = 0;
+            List<string> dumpStr = new List<string>();
             DriverV7Net driver = new DriverV7Net();
+            var tcs = new TaskCompletionSource<List<string>>();
 
-            driver.OnReceiveData = delegate (PackV7 pack)
+            driver.OnReceiveData =  (PackV7 pack) =>
             {
                 if (pack is LKDSFramework.Packs.DataDirect.PackV7NVRAMAns)
                 {
@@ -121,6 +122,7 @@ namespace LKDS_Logger_NVRAM
                     Console.WriteLine();
 
 
+
                 }
 
                 Console.Write("костыль в асинке: " + dumpBytes.Count());
@@ -129,8 +131,8 @@ namespace LKDS_Logger_NVRAM
                     doneEvent.Set();
                 }
                 
-            };
 
+            };
             if (driver.Init())
             {
                 DeviceV7 dev;
@@ -172,7 +174,7 @@ namespace LKDS_Logger_NVRAM
                     }
                 }
             }
-
+            return await tcs.Task;
 
             while (true)
             {
@@ -197,6 +199,7 @@ namespace LKDS_Logger_NVRAM
             }
 
            
+
         }
 
         public void FromLBToSQLite(List<LB> lBs)
@@ -204,7 +207,7 @@ namespace LKDS_Logger_NVRAM
             for(int i = 0; i < lBs.Count;)
             {
                 LB lb = lBs[i];
-                List<string> ActualDump = GetDump(lb);
+                List<string> ActualDump = GetDump(lb).Result;
                 List<string> LastDump = new List<string>();
 
                 // ^ вызов функции по получению последнего дампа из бд

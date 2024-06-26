@@ -316,12 +316,14 @@ namespace LKDS_Logger_NVRAM
         }
 
 
-        private void LBRowClick(object sender, RoutedEventArgs e)
+        private async void LBRowClick(object sender, RoutedEventArgs e)
         {
+
 
             
 /*            List<string> temp = lBAddConnect.GetDump(LBs[0]);
             Console.WriteLine("принятые данные в мв: " + string.Join(" ", temp));*/
+
 
 
             StackPanel button = (StackPanel)sender;

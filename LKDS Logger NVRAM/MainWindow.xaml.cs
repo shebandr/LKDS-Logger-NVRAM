@@ -270,12 +270,12 @@ namespace LKDS_Logger_NVRAM
         }
 
 
-        private void LBRowClick(object sender, RoutedEventArgs e)
+        private async void LBRowClick(object sender, RoutedEventArgs e)
         {
 
             LBAddConnect lBAddConnect = new LBAddConnect();
-            lBAddConnect.DBInitiate();
-            List<string> temp = lBAddConnect.GetDump(LBs[0]);
+//            lBAddConnect.DBInitiate();
+            List<string> temp =  lBAddConnect.GetDump(LBs[0]).Result;
             Console.WriteLine("принятые данные в мв: " + string.Join(" ", temp));
 
 

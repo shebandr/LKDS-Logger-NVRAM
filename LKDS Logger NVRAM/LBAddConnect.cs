@@ -87,18 +87,19 @@ namespace LKDS_Logger_NVRAM
 
 
         private static ManualResetEvent doneEvent = new ManualResetEvent(false);
-        public List<string> GetDump(LB LBAsked)
+        public async Task<List<string>> GetDump(LB LBAsked)
         {
             int DumpSizeButes = 64;
             int PacketSize = 64;
             int BytesCount = 0;
             int StartByte = 0;
             List<byte> dumpBytes = new List<byte>();
-            TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>();
             int flag = 0;
+            List<string> dumpStr = new List<string>();
             DriverV7Net driver = new DriverV7Net();
+            var tcs = new TaskCompletionSource<List<string>>();
 
-            driver.OnReceiveData = delegate (PackV7 pack)
+            driver.OnReceiveData =  (PackV7 pack) =>
             {
                 if (pack is LKDSFramework.Packs.DataDirect.PackV7NVRAMAns)
                 {
@@ -117,13 +118,24 @@ namespace LKDS_Logger_NVRAM
 
                     }
                     Console.WriteLine();
+                
+                Console.WriteLine("размеры дампа до перевода и после: ");
+                Console.WriteLine(dumpBytes.Count);
+                string tempStrDump = BitConverter.ToString(dumpBytes.ToArray()).Replace("-", string.Empty);
+                Console.WriteLine(tempStrDump.Length);
+               
+                Console.WriteLine(tempStrDump);
+                for (int i = 0; i < dumpBytes.Count; i++)
+                {
+                    dumpStr.Add(tempStrDump[i * 2].ToString() + tempStrDump[i * 2 + 1].ToString());
+                    Console.WriteLine(i.ToString() + ": " + dumpBytes[i].ToString() + " " + tempStrDump[i * 2].ToString() + tempStrDump[i * 2 + 1].ToString());
                 }
 
-
-                doneEvent.Set();
-
+                driver.Close();
+                    Console.WriteLine("конец асинхронной работы");
+                tcs.TrySetResult(dumpStr);
+                }
             };
-
             if (driver.Init())
             {
                 DeviceV7 dev;
@@ -165,26 +177,8 @@ namespace LKDS_Logger_NVRAM
                     }
                 }
             }
+            return await tcs.Task;
 
-
-            while (true)
-            {
-                doneEvent.WaitOne();
-                if (BytesCount == DumpSizeButes)
-                {
-                    string tempStrDump = BitConverter.ToString(dumpBytes.ToArray()).Replace("-", string.Empty);
-                    List<string> dumpStr = new List<string>();
-                    for (int i = 0; i < dumpBytes.Count / 2; i++)
-                    {
-                        dumpStr.Add(tempStrDump[i * 2].ToString());
-                        dumpStr.Add(tempStrDump[i * 2 + 1].ToString());
-                    }
-                    driver.Close();
-                    return dumpStr;
-                }
-            }
-
-           
         }
 
         public void FromLBToSQLite(List<LB> lBs)
@@ -192,7 +186,7 @@ namespace LKDS_Logger_NVRAM
             for(int i = 0; i < lBs.Count;)
             {
                 LB lb = lBs[i];
-                List<string> ActualDump = GetDump(lb);
+                List<string> ActualDump = GetDump(lb).Result;
                 List<string> LastDump = new List<string>();
 
                 // ^ вызов функции по получению последнего дампа из бд

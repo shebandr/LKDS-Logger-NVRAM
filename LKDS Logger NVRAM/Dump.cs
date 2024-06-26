@@ -8,9 +8,8 @@ namespace LKDS_Logger_NVRAM
 {
     public class Dump
     {
+        public int id {  get; set; }
         public string TimeDate { get; set; }
-        public int LBId { get; set; }
-        public bool IsChanged { get; set; }
-        public List<byte> Data { get; set; }
+        public string Data { get; set; }
     }
 }

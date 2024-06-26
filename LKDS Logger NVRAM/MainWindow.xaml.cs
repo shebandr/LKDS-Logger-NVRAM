@@ -19,6 +19,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.IO;
+using System.Diagnostics.Eventing.Reader;
 
 namespace LKDS_Logger_NVRAM
 {   
@@ -32,12 +33,12 @@ namespace LKDS_Logger_NVRAM
         public string UniversalKey = "12345678";
         public ObservableCollection<LB> LBs { get; set; }
         List<string> LBTempWhileRedacting = new List<string>() { "", "", "", "", ""};
-
+        LBAddConnect lBAddConnect = new LBAddConnect();
         public MainWindow()
         {
             InitializeComponent();
             LKDSFramework.DriverV7Net driverV7Net = new LKDSFramework.DriverV7Net();
-            LB LBTemp = new LB();
+            /*LB LBTemp = new LB();
             LBTemp.LBName = "123";
             LBTemp.LBKey= "qwerty1234";
             LBTemp.LBId = 51191;
@@ -45,10 +46,18 @@ namespace LKDS_Logger_NVRAM
             LBTemp.LBPort = 0;
             LBTemp.LBStatus = "отвечает";
             LBTemp.LBLastChange = "01.01.2003 12:49";
-
-            LBs = new ObservableCollection<LB> { LBTemp };
+*/
+            
+            /*lBAddConnect.DBInitiate()*/
+            /*            ;
+                        LB tempLB = new LB();
+                        tempLB = lBAddConnect.LBFromSQL(51191);*/
+            if (!File.Exists("LBDumps.db3")){
+                lBAddConnect.DBInitiate();
+            }
+            LBs = new ObservableCollection<LB>(lBAddConnect.AllLBIdFromSQL());
             LBList.ItemsSource = LBs;
-            Console.WriteLine(LBs[0].LBName);
+
             
         }
 
@@ -133,7 +142,9 @@ namespace LKDS_Logger_NVRAM
                     break;
                 }
             }
+            lBAddConnect.LBDelSQL(LBs[flag]);
             LBs.RemoveAt(flag); // крашится из-за того, что внутренний айди у лб не меняется, но, при удалении лб с меньшим айди, он перестает соответствовать его месту в коллекции. Пойду чаю бахну пока
+            
         }
 
         
@@ -146,25 +157,34 @@ namespace LKDS_Logger_NVRAM
         {
             List<string> ErrorList = new List<string>();
 
+            bool flag = true;
             if (input[0] == "" || input[1] == "" || input[2] == "" || input[3] == "" || input[4] == "")
             {
                 ErrorList.Add("Присутствуют пустые поля");
                 Console.WriteLine("присутствуют пустые поля");
                 return ErrorList;
             }
+            if (input[1].Length > 9)
+            {
+                ErrorList.Add("Слишком большой идентификатор");
 
-            bool flag = true;
-            try
-            {
-                Int32.Parse(input[1]);
             }
-            catch (FormatException)
+            else
             {
-                flag = false;
-                Console.WriteLine("невозможно перевести");
-                ErrorList.Add("Идентификатор");
-                //   MessageBox.Show("Неправильный идентификатор Лифтового блока");
+                try
+                {
+                    Int32.Parse(input[1]);
+                }
+                catch (FormatException)
+                {
+                    flag = false;
+                    Console.WriteLine("невозможно перевести");
+                    ErrorList.Add("Идентификатор");
+                    //   MessageBox.Show("Неправильный идентификатор Лифтового блока");
+                }
             }
+
+
             if (!flag)
             {
                 ErrorList.Add("Идентификатор невозможен");
@@ -191,16 +211,33 @@ namespace LKDS_Logger_NVRAM
                 ErrorList.Add("IP");
             }
 
-            try
-            {
-                Int32.Parse(input[4]);
-            }
-            catch (FormatException)
+            if (input[4].Length > 6)
             {
                 ErrorList.Add("Порт");
-                Console.WriteLine("невозможно перевести порт");
-                //   MessageBox.Show("Неправильный порт Лифтового блока");
             }
+            else
+            {
+                try
+                {
+                    Int32.Parse(input[4]);
+                }
+                catch (FormatException)
+                {
+                    ErrorList.Add("Порт");
+                    Console.WriteLine("невозможно перевести порт");
+                    //   MessageBox.Show("Неправильный порт Лифтового блока");
+                }
+            }
+
+
+            if (ErrorList.Count != 0 && ErrorList[ErrorList.Count - 1] != "Порт")
+            {
+                if (Int32.Parse(input[4])> 65536 || Int32.Parse(input[4]) < 1024)
+                {
+                    ErrorList.Add("Порт");
+                }
+            }
+
 
             for (int i = 0; i < LBs.Count; i++)
             {
@@ -224,19 +261,28 @@ namespace LKDS_Logger_NVRAM
                 Console.WriteLine("присутствуют пустые поля");
                 return ErrorList;
             }
-
             bool flag = true;
-            try
+            if (input[1].Length >9)
             {
-                Int32.Parse(input[1]);
-            }
-            catch (FormatException)
+                ErrorList.Add("Слишком большой идентификатор");
+                
+            } else
             {
-                flag = false;
-                Console.WriteLine("невозможно перевести");
-                ErrorList.Add("Идентификатор");
-                //   MessageBox.Show("Неправильный идентификатор Лифтового блока");
+                try
+                {
+                    Int32.Parse(input[1]);
+                }
+                catch (Exception)
+                {
+                    flag = false;
+                    Console.WriteLine("невозможно перевести");
+                    ErrorList.Add("Идентификатор");
+                    //   MessageBox.Show("Неправильный идентификатор Лифтового блока");
+                }
             }
+
+            
+
             if (!flag)
             {
                 ErrorList.Add("Идентификатор невозможен");
@@ -253,7 +299,7 @@ namespace LKDS_Logger_NVRAM
                 ErrorList.Add("Длина ключа");
             }
 
-
+            
 
 
 
@@ -273,10 +319,11 @@ namespace LKDS_Logger_NVRAM
         private async void LBRowClick(object sender, RoutedEventArgs e)
         {
 
-            LBAddConnect lBAddConnect = new LBAddConnect();
-//            lBAddConnect.DBInitiate();
-            List<string> temp =  lBAddConnect.GetDump(LBs[0]).Result;
-            Console.WriteLine("принятые данные в мв: " + string.Join(" ", temp));
+
+            
+/*            List<string> temp = lBAddConnect.GetDump(LBs[0]);
+            Console.WriteLine("принятые данные в мв: " + string.Join(" ", temp));*/
+
 
 
             StackPanel button = (StackPanel)sender;

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -22,6 +23,7 @@ namespace LKDS_Logger_NVRAM
     public partial class WindowLBDumps : Window
     {
         LB currentLB;
+        LBAddConnect lBAddConnect = new LBAddConnect();
         public ObservableCollection<Dump> Dumps { get; set; }
         public WindowLBDumps(LB inputLB)
         {
@@ -34,26 +36,9 @@ namespace LKDS_Logger_NVRAM
             LBLastChange.Content = currentLB.LBLastChange;
             Title = currentLB.LBName;
 
-            
-  /*          string[] allfiles = new string[2];
-            allfiles[0] = "q";
-            allfiles[1] = "w";
-  */          
+            lBAddConnect.GetDumpFromLBToSQL(inputLB);
 
-            Dumps = new ObservableCollection<Dump> { };
-/*            foreach (string filename in allfiles)
-            {
-                Dump DumpTemp = new Dump();
-                DumpTemp.LBId = currentLB.LBId;
-                DumpTemp.IsChanged = false;
-                string[] ST = filename.Split('\\');
-                
-                DumpTemp.TimeDate = ST[2].Substring(0, ST[2].Length - 4);
-                Console.WriteLine(ST[2].Substring(0, ST[2].Length - 4));
-                Dumps.Add(DumpTemp);
-                Console.WriteLine(filename);
-            }
-*/
+            Dumps = new ObservableCollection<Dump>(lBAddConnect.GetAllDumps(currentLB.LBId));
             DumpList.ItemsSource = Dumps;
 
 

@@ -20,6 +20,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.IO;
 using System.Diagnostics.Eventing.Reader;
+using System.Threading;
 
 namespace LKDS_Logger_NVRAM
 {   
@@ -31,9 +32,11 @@ namespace LKDS_Logger_NVRAM
         public bool LBIsRedacted = false;
         public bool UsingUniversalKey = false;
         public string UniversalKey = "12345678";
+        public static Mutex mutexMW = new Mutex(false, "Global\\MutexExample");
         public ObservableCollection<LB> LBs { get; set; }
         List<string> LBTempWhileRedacting = new List<string>() { "", "", "", "", ""};
         LBAddConnect lBAddConnect = new LBAddConnect();
+        public List<LB> LBListForDetached;
         public MainWindow()
         {
             InitializeComponent();
@@ -58,7 +61,11 @@ namespace LKDS_Logger_NVRAM
             LBs = new ObservableCollection<LB>(lBAddConnect.AllLBIdFromSQL());
             LBList.ItemsSource = LBs;
 
-            
+            LBListForDetached = new List<LB>(LBs);
+            DetachedAsks DA = new DetachedAsks(mutexMW, 1, LBListForDetached);
+/*            DA.RunPeriodicallyAsync();*/
+
+
         }
 
 
@@ -144,7 +151,7 @@ namespace LKDS_Logger_NVRAM
             }
             lBAddConnect.LBDelSQL(LBs[flag]);
             LBs.RemoveAt(flag); // крашится из-за того, что внутренний айди у лб не меняется, но, при удалении лб с меньшим айди, он перестает соответствовать его месту в коллекции. Пойду чаю бахну пока
-            
+            LBListForDetached.RemoveAt(flag);
         }
 
         
@@ -336,6 +343,7 @@ namespace LKDS_Logger_NVRAM
                     break;
                 }
             }
+            
             var windowLBDumps = new WindowLBDumps(LBs[flag]);
 
             windowLBDumps.Owner = this;

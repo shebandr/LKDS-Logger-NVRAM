@@ -131,7 +131,8 @@ namespace LKDS_Logger_NVRAM
                 LBTemp.LBLastChange = WMG.LBs[RedactingLB].LBLastChange;
                 LBTemp.LBLastDump = WMG.LBs[RedactingLB].LBLastDump;
                 WMG.LBs[RedactingLB] = LBTemp;
-                if(WMG.WindowsClosing == true)
+                WMG.LBListForDetached[RedactingLB] = LBTemp;
+                if (WMG.WindowsClosing == true)
                 {
                     this.Close();
                 }
@@ -213,6 +214,7 @@ namespace LKDS_Logger_NVRAM
                 LBDataTemp.LBLastChange = "никогда";
                 LBDataTemp.LBLastDump = "никогда";
                 WMG.LBs.Add(LBDataTemp);
+                WMG.LBListForDetached.Add(LBDataTemp);
                 lBAddConnect.LBToSQL(LBDataTemp);
                 Console.WriteLine("успешно добавлено: " + WMG.LBs[WMG.LBs.Count - 1].LBName + WMG.LBs[WMG.LBs.Count - 1].LBId + WMG.LBs[WMG.LBs.Count - 1].LBKey + WMG.LBs[WMG.LBs.Count - 1].LBIpString + WMG.LBs[WMG.LBs.Count - 1].LBPort + WMG.LBs[WMG.LBs.Count - 1].LBStatus + WMG.LBs[WMG.LBs.Count - 1].LBLastChange);
                 if (WMG.InputsClear)

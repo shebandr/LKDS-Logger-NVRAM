@@ -13,6 +13,7 @@ using System.Data.Common;
 using System.Data;
 using System.Windows.Markup;
 using System.Runtime.Remoting;
+using System.Data.SqlClient;
 
 namespace LKDS_Logger_NVRAM
 {
@@ -89,10 +90,10 @@ namespace LKDS_Logger_NVRAM
         private string baseName = "LBDumps.db3";
 
         private static ManualResetEvent doneEvent = new ManualResetEvent(false);
-        public List<string> GetDump(LB LBAsked)
+        public Dump GetDump(LB LBAsked)
         {
-            int DumpSizeBites = 64;
-            int PacketSize = 64;
+            int DumpSizeBites = 255;
+            int PacketSize = 255;
             int BytesCount = 0;
             int StartByte = 0;
             List<byte> dumpBytes = new List<byte>();
@@ -182,13 +183,16 @@ namespace LKDS_Logger_NVRAM
                 {
                     string tempStrDump = BitConverter.ToString(dumpBytes.ToArray()).Replace("-", string.Empty);
                     Console.WriteLine("длина костылей: " + dumpBytes.Count.ToString() + " " + tempStrDump.Length + " " + tempStrDump);
-                    List<string> dumpStr = new List<string>();
+                    string dumpStr = "";
                     for (int i = 0; i < dumpBytes.Count; i++)
                     {
-                        dumpStr.Add(tempStrDump[i * 2].ToString() + tempStrDump[i * 2 + 1].ToString());
+                        dumpStr+=tempStrDump[i * 2].ToString() + tempStrDump[i * 2 + 1].ToString() + " ";
                     }
                     driver.Close();
-                    return dumpStr;
+                    Dump dump = new Dump();
+                    dump.TimeDate = new DateTime().ToString();
+                    dump.Data = dumpStr;
+                    return dump;
                 }
                 else
                 {
@@ -199,32 +203,34 @@ namespace LKDS_Logger_NVRAM
            
         }
 
-        public void FromLBToSQLite(List<LB> lBs)
+        public void GetDumpFromLBToSQL(LB lb)
         {
-            for(int i = 0; i < lBs.Count;)
-            {
-                LB lb = lBs[i];
-                List<string> ActualDump = GetDump(lb);
-                List<string> LastDump = new List<string>();
+                Dump ActualDump = GetDump(lb);
+                Dump LastDump = GetLastDump(lb.LBId);
 
                 // ^ вызов функции по получению последнего дампа из бд
                 if(DumpsComparation(LastDump, ActualDump))
                 {
+                    DumpToSQL(ActualDump, lb.LBId);
                     //дамп отличается
                 } else
                 {
+                    DumpEdit(lb.LBId);
                     //дамп не отличается
                 }
-            }
+            
         }
 
-        public bool DumpsComparation(List<string> a, List<string> b)
+        public bool DumpsComparation(Dump a, Dump b)
         {
             bool flag = false;
-
-            for(int i = 0; i < a.Count; i++)
+            if (a.Data == null)
             {
-                if (a[i] != b[i])
+                return true;
+            }
+            for(int i = 0; i < a.Data.Length; i++)
+            {
+                if (a.Data[i] != b.Data[i])
                 {
                     flag = true;
                 }
@@ -327,7 +333,7 @@ namespace LKDS_Logger_NVRAM
                 }
                 using (SQLiteCommand command = new SQLiteCommand(connection))
                 {
-                    command.CommandText = @"CREATE TABLE IF NOT EXISTS [dump_" + lb.LBId + "] ( [idDump] integer PRIMARY KEY AUTOINCREMENT NOT NULL, [data] char(150) NOT NULL, [time] char(100) NOT NULL);";
+                    command.CommandText = @"CREATE TABLE IF NOT EXISTS [dump_" + lb.LBId + "] ( [id] integer PRIMARY KEY AUTOINCREMENT NOT NULL, [data] char(800) NOT NULL, [time] char(100) NOT NULL);";
                     command.CommandType = CommandType.Text;
                     command.ExecuteNonQuery();
                 }
@@ -443,11 +449,11 @@ namespace LKDS_Logger_NVRAM
                         {
                             Dump dump = new Dump();
 
-                            dump.id = reader.GetInt32(reader.GetOrdinal("idDump"));
+                            dump.id = reader.GetInt32(reader.GetOrdinal("id"));
                             dump.Data = reader.GetString(reader.GetOrdinal("data"));
                             dump.TimeDate = reader.GetString(reader.GetOrdinal("time"));
 
-                            Console.WriteLine($"id: {dump.id}, data: {dump.Data}, time: {dump.TimeDate}");
+                            Console.WriteLine($"id: 0, data: {dump.Data}, time: {dump.TimeDate}");
                             dumps.Add(dump);
                         }
                     }
@@ -468,7 +474,7 @@ namespace LKDS_Logger_NVRAM
  
                 string tableName = $"dump_{lBId}";
 
-                string selectQuery = $"SELECT * FROM {tableName} ORDER BY idDump DESC LIMIT 1";
+                string selectQuery = $"SELECT * FROM {tableName} ORDER BY id DESC LIMIT 1";
 
                 using (SQLiteCommand command = new SQLiteCommand(selectQuery, connection))
                 {
@@ -476,14 +482,14 @@ namespace LKDS_Logger_NVRAM
                     {
                         if (reader.Read())
                         {
-                            dump.id = reader.GetInt32(reader.GetOrdinal("idDump"));
+                            dump.id = reader.GetInt32(reader.GetOrdinal("id"));
                             dump.Data = reader.GetString(reader.GetOrdinal("data"));
                             dump.TimeDate = reader.GetString(reader.GetOrdinal("time"));
                             Console.WriteLine($"id: {dump.id}, data: {dump.Data}, time: {dump.TimeDate}");
                         }
                         else
                         {
-                            Console.WriteLine("No records found.");
+                            Console.WriteLine("No records found. " + string.IsNullOrEmpty(dump.Data));
                         }
                     }
                 }
@@ -495,9 +501,68 @@ namespace LKDS_Logger_NVRAM
             return dump;
         }
 
+        public void DumpToSQL(Dump dump, int LBId)
+        {
+            string connectionString = "Data Source=" + baseName + ";Version=3;";
+            using (SQLiteConnection connection = new SQLiteConnection(connectionString))
+            {
+                connection.Open();
+
+                string query = $"INSERT INTO dump_{LBId} (data, time) VALUES (@data, @time)";
+
+                using (SQLiteCommand command = new SQLiteCommand(query, connection))
+                {
+
+                    command.Parameters.AddWithValue("@data", dump.Data);
+                    command.Parameters.AddWithValue("@time", dump.TimeDate);
+
+                    int rowsAffected = command.ExecuteNonQuery();
+                    Console.WriteLine($"Rows affected: {rowsAffected}");
+                }
+            }
+        }
 
 
+        public void DumpEdit(int LBId)
+        {
+            string connectionString = "Data Source=" + baseName + ";Version=3;";
+            using (SQLiteConnection connection = new SQLiteConnection(connectionString))
+            {
+                connection.Open();
 
+                string selectQuery = $"SELECT id FROM dump_{LBId} ORDER BY id DESC LIMIT 1";
+                int lastIdDump = -1;
+
+                using (SQLiteCommand selectCommand = new SQLiteCommand(selectQuery, connection))
+                {
+                    object result = selectCommand.ExecuteScalar();
+                    if (result != null && result != DBNull.Value)
+                    {
+                        lastIdDump = Convert.ToInt32(result);
+                    }
+                }
+
+                if (lastIdDump != -1)
+                {
+                    // Обновляем поле time в последней записи
+                    string newTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                    string updateQuery = $"UPDATE dump_{LBId} SET time = @newTime WHERE id = @lastIdDump";
+
+                    using (SQLiteCommand updateCommand = new SQLiteCommand(updateQuery, connection))
+                    {
+                        updateCommand.Parameters.AddWithValue("@newTime", newTime);
+                        updateCommand.Parameters.AddWithValue("@lastIdDump", lastIdDump);
+
+                        int rowsAffected = updateCommand.ExecuteNonQuery();
+                        Console.WriteLine($"Rows affected: {rowsAffected}");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("No records found.");
+                }
+            }
+        }
 
     }
 }

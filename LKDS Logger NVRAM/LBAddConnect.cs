@@ -14,6 +14,8 @@ using System.Data;
 using System.Windows.Markup;
 using System.Runtime.Remoting;
 using System.Data.SqlClient;
+using System.IO;
+using System.Collections.ObjectModel;
 
 namespace LKDS_Logger_NVRAM
 {
@@ -109,11 +111,13 @@ namespace LKDS_Logger_NVRAM
                     Console.Write("данные получены: " + dump.Data.Count() + " ");
                     foreach (var i in dump.Data)
                     {
-                        if (flag > 4)
+                        if (flag > 3)
                         {
-                            dumpBytes.Add(i);
                             BytesCount++;
+                            dumpBytes.Add(i);
                         }
+                        
+
                         flag++;
                         Console.Write(i + " ");
                         
@@ -165,11 +169,14 @@ namespace LKDS_Logger_NVRAM
                     nvramAsk.Address = union16;
                     nvramAsk.NVRAMLen = (byte)PacketSize;
                     nvramAsk.isWriteNVRAM = false;
-                    nvramAsk.UnitID = 51191;
+                    nvramAsk.UnitID = (uint)LBAsked.LBId;
                     if ((nvramAsk.PackID = driver.SendPack(nvramAsk)) == 0)
                     {
                         Console.WriteLine("Не получилось поставить в очередь пакет");
 
+                        Dump dump = new Dump();
+                        dump.id = -1;
+                        return dump;
                     }
                 }
             }
@@ -179,7 +186,7 @@ namespace LKDS_Logger_NVRAM
             {
                 doneEvent.WaitOne();
                 Console.WriteLine("должно начать работать " + BytesCount + " " + DumpSizeBites);
-                if (BytesCount == DumpSizeBites)
+                if (BytesCount -1 == DumpSizeBites)
                 {
                     string tempStrDump = BitConverter.ToString(dumpBytes.ToArray()).Replace("-", string.Empty);
                     Console.WriteLine("длина костылей: " + dumpBytes.Count.ToString() + " " + tempStrDump.Length + " " + tempStrDump);
@@ -190,7 +197,7 @@ namespace LKDS_Logger_NVRAM
                     }
                     driver.Close();
                     Dump dump = new Dump();
-                    dump.TimeDate = new DateTime().ToString();
+                    dump.TimeDate = DateTime.Now.ToString("dd-MM-yyyy HH:mm:ss");
                     dump.Data = dumpStr;
                     return dump;
                 }
@@ -203,22 +210,42 @@ namespace LKDS_Logger_NVRAM
            
         }
 
-        public void GetDumpFromLBToSQL(LB lb)
+        public void GetDumpFromLBToSQL(LB lb, int index, MainWindow MW)
         {
-                Dump ActualDump = GetDump(lb);
-                Dump LastDump = GetLastDump(lb.LBId);
+            Dump ActualDump = GetDump(lb);
+            if(ActualDump.id == -1)
+            {
+                lb.LBStatus = "не отвечает";
+                return;
+            } else
+            {
+                lb.LBStatus = "отвечает";
+            }
+            Dump LastDump = GetLastDump(lb.LBId);
+            string currentTime = DateTime.Now.ToString("dd-MM-yyyy HH:mm:ss");
 
-                // ^ вызов функции по получению последнего дампа из бд
-                if(DumpsComparation(LastDump, ActualDump))
+            if (DumpsComparation(LastDump, ActualDump))
                 {
                     DumpToSQL(ActualDump, lb.LBId);
-                    //дамп отличается
-                } else
+                    lb.LBLastChange = currentTime;
+                    lb.LBLastDump = currentTime;
+                    MW.LBs[index] = lb;
+                    MW.LBListForDetached[index] = lb;
+
+
+                //дамп отличается
+            }
+            else
                 {
                     DumpEdit(lb.LBId);
-                    //дамп не отличается
-                }
-            
+                    lb.LBLastDump = currentTime;
+                    MW.LBs[index] = lb;
+
+                Console.WriteLine(lb.LBLastDump + " " + MW.LBs[index].LBLastDump);
+                MW.LBListForDetached[index] = lb;
+                //дамп не отличается
+            }
+
         }
 
         public bool DumpsComparation(Dump a, Dump b)
@@ -426,7 +453,7 @@ namespace LKDS_Logger_NVRAM
                 }
             }
         }
-        // ОБЕ ФУНКЦИИ НИЖЕ ЕЩЕ НЕ ПРОВЕРЕНЫ И МОГУТ НЕ РАБОТАТЬ
+/*        // ОБЕ ФУНКЦИИ НИЖЕ ЕЩЕ НЕ ПРОВЕРЕНЫ И МОГУТ НЕ РАБОТАТЬ*/
 
         public List<Dump> GetAllDumps(int lBid)
         {

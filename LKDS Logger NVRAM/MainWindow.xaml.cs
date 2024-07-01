@@ -21,6 +21,8 @@ using System.Windows.Shapes;
 using System.IO;
 using System.Diagnostics.Eventing.Reader;
 using System.Threading;
+using System.Globalization;
+using Microsoft.SqlServer.Server;
 
 namespace LKDS_Logger_NVRAM
 {   
@@ -33,6 +35,9 @@ namespace LKDS_Logger_NVRAM
         public bool UsingUniversalKey = false;
         public string UniversalKey = "12345678";
         public static Mutex mutexMW = new Mutex(false, "Global\\MutexExample");
+        public DateTime TimeStart;
+        public int TimeInterval = 0;
+        public DateTime TimeCheck;
         public ObservableCollection<LB> LBs { get; set; }
         List<string> LBTempWhileRedacting = new List<string>() { "", "", "", "", ""};
         LBAddConnect lBAddConnect = new LBAddConnect();
@@ -60,14 +65,17 @@ namespace LKDS_Logger_NVRAM
             }
             LBs = new ObservableCollection<LB>(lBAddConnect.AllLBIdFromSQL());
             LBList.ItemsSource = LBs;
+            /*            lBAddConnect.GetDumpFromLBToSQL(LBs[0]);*/
 
-            LBListForDetached = new List<LB>(LBs);
-            DetachedAsks DA = new DetachedAsks(mutexMW, 1, LBListForDetached);
-/*            DA.RunPeriodicallyAsync();*/
 
+            Loaded += MainWindow_Loaded;
 
         }
-
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            LBListForDetached = new List<LB>(LBs);
+            DetachedAsks DA = new DetachedAsks(mutexMW, 5, LBListForDetached, this);
+        }
 
         private void LBRedactButton_Click(object sender, RoutedEventArgs e)
         {
@@ -154,11 +162,7 @@ namespace LKDS_Logger_NVRAM
             LBListForDetached.RemoveAt(flag);
         }
 
-        
-        private void LBRedact(int i)
-        {
 
-        }
         // 0 - имя, 1 - айди, 2 - ключ, 3 - айпи, 4 - порт
         public List<string> LBInputDataCheckIp(List<string> input)
         {
@@ -344,7 +348,7 @@ namespace LKDS_Logger_NVRAM
                 }
             }
             
-            var windowLBDumps = new WindowLBDumps(LBs[flag]);
+            var windowLBDumps = new WindowLBDumps(LBs[flag], flag, this);
 
             windowLBDumps.Owner = this;
             windowLBDumps.Show();
@@ -375,7 +379,7 @@ namespace LKDS_Logger_NVRAM
             int Hours = -1;
             if (Int32.TryParse(HoursUpDown.Text, out Hours))
             {
-
+                TimeInterval += Int32.Parse(HoursUpDown.Text) * 3600;
             }
             else
             {
@@ -384,7 +388,7 @@ namespace LKDS_Logger_NVRAM
             int Minutes = -1;
             if (Int32.TryParse(MinutesUpDown.Text, out Minutes))
             {
-
+                TimeInterval += Int32.Parse(MinutesUpDown.Text) * 60;
 
             }
             else
@@ -392,11 +396,12 @@ namespace LKDS_Logger_NVRAM
                 ErrorList.Add("Минуты");
 
             }
+            Console.WriteLine("интервал в секундах: " + TimeInterval);
 
             DateTime? DateTimeCheckAfter = LBTimeCheck.Value;
             if (DateTimeCheckAfter.HasValue)
             {
-
+                TimeCheck = DateTimeCheckAfter.Value;
                 Console.WriteLine("Selected DateTime: " + DateTimeCheckAfter.Value.ToString("yyyy-MM-dd HH:mm:ss"));
             }
             else
@@ -408,7 +413,7 @@ namespace LKDS_Logger_NVRAM
             DateTime? DateTimeCheckStart = LBCheckStart.Value;
             if (DateTimeCheckStart.HasValue)
             {
-
+                TimeStart = DateTimeCheckStart.Value;
                 Console.WriteLine("Selected DateTime: " + DateTimeCheckStart.Value.ToString("yyyy-MM-dd HH:mm:ss"));
             }
             else
@@ -470,7 +475,23 @@ namespace LKDS_Logger_NVRAM
             }
         }
 
+/*
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            DateTime dateTime1 = TimeCheck;
+            DateTime dateTime2 = DateTime.ParseExact(dateTimeString2, format, System.Globalization.CultureInfo.InvariantCulture);
+            if (value is int intValue && intValue > 5)
+            {
+                return Brushes.LightGreen;
+            }
+            return Brushes.Transparent;
+        }
 
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }*/
 
     }
+    
 }

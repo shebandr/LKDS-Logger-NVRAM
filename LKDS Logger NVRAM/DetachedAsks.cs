@@ -11,13 +11,13 @@ namespace LKDS_Logger_NVRAM
     {
         private static LBAddConnect lBAddConnect = new LBAddConnect();
 
-        public DetachedAsks(Mutex mw, int time, List<LB> LBs)
+        public DetachedAsks(Mutex mw, int time, List<LB> LBs, MainWindow MW)
         {
-            RunPeriodicallyAsync(time, mw, LBs);
+            RunPeriodicallyAsync(time, mw, LBs, MW);
         }
 
 
-        public static async Task RunPeriodicallyAsync(int intervalSeconds, Mutex MW, List<LB> LBs)
+        public static async Task RunPeriodicallyAsync(int intervalSeconds, Mutex MW, List<LB> LBs, MainWindow mw)
         {
             if (!MW.WaitOne(TimeSpan.Zero, true))
             {
@@ -27,13 +27,16 @@ namespace LKDS_Logger_NVRAM
 
             try
             {
+                int index= 0;
                 while (true)
                 {
 
                     MW.WaitOne();
+                    
                     foreach(var lb in LBs)
                     {
-                        lBAddConnect.GetDumpFromLBToSQL(lb);
+                        lBAddConnect.GetDumpFromLBToSQL(lb, index, mw);
+                        index++;
 
                     }
                     Console.WriteLine("1");

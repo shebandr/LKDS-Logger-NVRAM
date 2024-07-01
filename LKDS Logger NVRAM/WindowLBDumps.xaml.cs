@@ -25,7 +25,7 @@ namespace LKDS_Logger_NVRAM
         LB currentLB;
         LBAddConnect lBAddConnect = new LBAddConnect();
         public ObservableCollection<Dump> Dumps { get; set; }
-        public WindowLBDumps(LB inputLB)
+        public WindowLBDumps(LB inputLB, int index, MainWindow MW)
         {
             InitializeComponent();
             currentLB = inputLB;
@@ -36,12 +36,24 @@ namespace LKDS_Logger_NVRAM
             LBLastChange.Content = currentLB.LBLastChange;
             Title = currentLB.LBName;
 
-            lBAddConnect.GetDumpFromLBToSQL(inputLB);
+            lBAddConnect.GetDumpFromLBToSQL(inputLB, index, MW);
 
             Dumps = new ObservableCollection<Dump>(lBAddConnect.GetAllDumps(currentLB.LBId));
             DumpList.ItemsSource = Dumps;
 
 
+        }
+
+
+        private void DumpRowClick(object sender, RoutedEventArgs e)
+        {
+
+            StackPanel button = (StackPanel)sender;
+            int id = Int32.Parse(button.Tag.ToString());
+
+            var dumpview = new WindowDump(id, currentLB.LBId);
+            dumpview.Owner = this;
+            dumpview.Show();
         }
     }
 }

@@ -210,9 +210,9 @@ namespace LKDS_Logger_NVRAM
                 }
                 LBDataTemp.LBKey = input[2];
                 LBAddErrorLabel.Content = "";
-                LBDataTemp.LBStatus = "отвечает";
-                LBDataTemp.LBLastChange = "никогда";
-                LBDataTemp.LBLastDump = "никогда";
+                LBDataTemp.LBStatus = "нет ответа";
+                LBDataTemp.LBLastChange = "";
+                LBDataTemp.LBLastDump = "";
                 WMG.LBs.Add(LBDataTemp);
                 WMG.LBListForDetached.Add(LBDataTemp);
                 lBAddConnect.LBToSQL(LBDataTemp);

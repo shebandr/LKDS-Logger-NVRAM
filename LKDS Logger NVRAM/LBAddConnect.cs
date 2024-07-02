@@ -22,73 +22,6 @@ namespace LKDS_Logger_NVRAM
     internal class LBAddConnect
     {
         public LBAddConnect() { }
-        public void StartService()
-        {
-            Console.WriteLine("подключение фреймворка");
-            DriverV7Net driver = new DriverV7Net();
-            driver.OnDevChange = delegate (DeviceV7 dev)
-            {
-                Console.WriteLine($"Устройство {dev} {(dev.isOnline ? "Вышло на связь" : "Ушло со связи")}");
-                
-                /*                PackV7RestartAsk restartAsk = new PackV7RestartAsk();
-
-                                restartAsk.UnitID = 51191;
-                                Console.WriteLine("до отправки" + restartAsk.State.ToString() + " " + restartAsk.Data.ToString() + " " + restartAsk.Type.ToString());
-                                if ((restartAsk.PackID = driver.SendPack(restartAsk)) == 0)
-                                {
-                                    Console.WriteLine("Не получилось поставить в очередь пакет");
-
-                                }
-                                Console.WriteLine("после отправки" + restartAsk.State.ToString() + " " + restartAsk.Data.ToString() + " " + restartAsk.Type.ToString());*/
-            };
-            /*driver.OnSubChange = delegate (SubDeviceV7 sub)
-            {
-                Console.WriteLine($"Устройство CAN {sub} в {sub.Parrent} {(sub.isOnline ? "Вышло на связь" : "Ушло со связи")}");
-            };*/
-            driver.OnReceiveData = delegate (PackV7 pack)
-            {
-                if (pack is LKDSFramework.Packs.DataDirect.PackV7NVRAMAns)
-                {
-                    LKDSFramework.Packs.DataDirect.PackV7NVRAMAns dump = pack as LKDSFramework.Packs.DataDirect.PackV7NVRAMAns;
-                    Console.Write("данные получены: " + dump.Data.Count() + " ");
-                    foreach (var i in dump.Data)
-                    {
-                        Console.Write(i + " ");
-                    }
-                    Console.WriteLine();
-                }
-
-            };
-
-            if (driver.Init())
-            {
-                DeviceV7 dev = new DeviceV7()
-                {
-                    IP = DeviceV7.CloudIP,
-                    Port = DeviceV7.CloudPort,
-                    UnitID = 51191,
-                    Pass = "qwerty1234"
-                };
-                driver.AddDevice(ref dev);
-                for(int i = 0; i < 65536; i += 255) {
-                    PackV7NVRAMAsk nvramAsk = new PackV7NVRAMAsk();
-                    Union16 union16 = new Union16();
-                    union16.Value = (short)i;
-                    nvramAsk.Address = union16;
-                    nvramAsk.NVRAMLen = 255;
-                    nvramAsk.isWriteNVRAM = false;
-                    nvramAsk.UnitID = 51191;
-                    if ((nvramAsk.PackID = driver.SendPack(nvramAsk)) == 0)
-                    {
-                        Console.WriteLine("Не получилось поставить в очередь пакет");
-
-                    }
-                }
-
-
-                 driver.Close();
-            }
-        }
         private string baseName = "LBDumps.db3";
 
         private static ManualResetEvent doneEvent = new ManualResetEvent(false);
@@ -116,24 +49,21 @@ namespace LKDS_Logger_NVRAM
                             BytesCount++;
                             dumpBytes.Add(i);
                         }
-                        
+
 
                         flag++;
-                        Console.Write(i + " ");
-                        
+
 
                     }
-                    Console.WriteLine();
 
 
                 }
 
-                Console.Write("костыль в асинке: " + dumpBytes.Count());
                 if (!doneEvent.SafeWaitHandle.IsClosed)
                 {
                     doneEvent.Set();
                 }
-                
+
             };
 
             if (driver.Init())
@@ -149,7 +79,8 @@ namespace LKDS_Logger_NVRAM
                         UnitID = (uint)LBAsked.LBId,
                         Pass = LBAsked.LBKey
                     };
-                } else
+                }
+                else
                 {
                     dev = new DeviceV7()
                     {
@@ -185,15 +116,13 @@ namespace LKDS_Logger_NVRAM
             while (true)
             {
                 doneEvent.WaitOne();
-                Console.WriteLine("должно начать работать " + BytesCount + " " + DumpSizeBites);
-                if (BytesCount -1 == DumpSizeBites)
+                if (BytesCount - 1 == DumpSizeBites)
                 {
                     string tempStrDump = BitConverter.ToString(dumpBytes.ToArray()).Replace("-", string.Empty);
-                    Console.WriteLine("длина костылей: " + dumpBytes.Count.ToString() + " " + tempStrDump.Length + " " + tempStrDump);
                     string dumpStr = "";
                     for (int i = 0; i < dumpBytes.Count; i++)
                     {
-                        dumpStr+=tempStrDump[i * 2].ToString() + tempStrDump[i * 2 + 1].ToString() + " ";
+                        dumpStr += tempStrDump[i * 2].ToString() + tempStrDump[i * 2 + 1].ToString() + " ";
                     }
                     driver.Close();
                     Dump dump = new Dump();
@@ -207,17 +136,18 @@ namespace LKDS_Logger_NVRAM
                 }
             }
 
-           
+
         }
 
         public void GetDumpFromLBToSQL(LB lb, int index, MainWindow MW)
         {
             Dump ActualDump = GetDump(lb);
-            if(ActualDump.id == -1)
+            if (ActualDump.id == -1)
             {
                 lb.LBStatus = "не отвечает";
                 return;
-            } else
+            }
+            else
             {
                 lb.LBStatus = "отвечает";
             }
@@ -225,27 +155,28 @@ namespace LKDS_Logger_NVRAM
             string currentTime = DateTime.Now.ToString("dd-MM-yyyy HH:mm:ss");
 
             if (DumpsComparation(LastDump, ActualDump))
-                {
-                    DumpToSQL(ActualDump, lb.LBId);
-                    lb.LBLastChange = currentTime;
-                    lb.LBLastDump = currentTime;
-                    MW.LBs[index] = lb;
-                    MW.LBListForDetached[index] = lb;
-
+            {
+                DumpToSQL(ActualDump, lb.LBId);
+                lb.LBLastChange = currentTime;
+                lb.LBLastDump = currentTime;
+                MW.LBs[index] = lb;
+                MW.LBListForDetached[index] = lb;
+                UpdateLastChange(lb.LBId, currentTime);
+                UpdateLastDump(lb.LBId, currentTime);
 
                 //дамп отличается
             }
             else
-                {
-                    DumpEdit(lb.LBId);
-                    lb.LBLastDump = currentTime;
-                    MW.LBs[index] = lb;
+            {
+                DumpEdit(lb.LBId);
+                MW.LBs[index].LBLastDump = currentTime;
 
                 Console.WriteLine(lb.LBLastDump + " " + MW.LBs[index].LBLastDump);
                 MW.LBListForDetached[index] = lb;
+                UpdateLastDump(lb.LBId, currentTime);
+
                 //дамп не отличается
             }
-
         }
 
         public bool DumpsComparation(Dump a, Dump b)
@@ -255,7 +186,7 @@ namespace LKDS_Logger_NVRAM
             {
                 return true;
             }
-            for(int i = 0; i < a.Data.Length; i++)
+            for (int i = 0; i < a.Data.Length; i++)
             {
                 if (a.Data[i] != b.Data[i])
                 {
@@ -268,7 +199,7 @@ namespace LKDS_Logger_NVRAM
         public void DBInitiate()
         {
 
-            
+
             SQLiteConnection.CreateFile(baseName);
             SQLiteFactory factory = (SQLiteFactory)DbProviderFactories.GetFactory("System.Data.SQLite");
             using (SQLiteConnection connection = (SQLiteConnection)factory.CreateConnection())
@@ -315,8 +246,6 @@ namespace LKDS_Logger_NVRAM
                     {
                         while (reader.Read())
                         {
-                            Console.WriteLine(lBId);
-                            Console.WriteLine($"inner_id: {reader["inner_id"]}, id: {reader["id"]}, name: {reader["name"]}, key: {reader["key"]}, ip: {reader["ip"]}, port: {reader["port"]}, status: {reader["status"]}, last_change: {reader["last_change"]}, last_dump: {reader["last_dump"]}");
                             lB.LBId = Int32.Parse(reader["id"].ToString());
                             lB.LBName = reader["name"].ToString();
                             lB.LBKey = reader["key"].ToString();
@@ -331,7 +260,7 @@ namespace LKDS_Logger_NVRAM
             }
 
 
-            return lB;    
+            return lB;
         }
 
         public void LBToSQL(LB lb)
@@ -346,7 +275,7 @@ namespace LKDS_Logger_NVRAM
 
                 using (SQLiteCommand command = new SQLiteCommand(insertQuery, connection))
                 {
-                    command.Parameters.AddWithValue("@id", lb.LBId); 
+                    command.Parameters.AddWithValue("@id", lb.LBId);
                     command.Parameters.AddWithValue("@name", lb.LBName);
                     command.Parameters.AddWithValue("@key", lb.LBKey);
                     command.Parameters.AddWithValue("@ip", lb.LBIpString);
@@ -356,7 +285,6 @@ namespace LKDS_Logger_NVRAM
                     command.Parameters.AddWithValue("@last_dump", lb.LBLastDump);
 
                     int rowsAffected = command.ExecuteNonQuery();
-                    Console.WriteLine($"Rows affected: {rowsAffected}");
                 }
                 using (SQLiteCommand command = new SQLiteCommand(connection))
                 {
@@ -383,7 +311,6 @@ namespace LKDS_Logger_NVRAM
                     {
                         while (reader.Read())
                         {
-                            Console.WriteLine($"id: {reader["id"]}");
                             LBs.Add(LBFromSQL(Int32.Parse(reader["id"].ToString())));
                         }
                     }
@@ -399,7 +326,7 @@ namespace LKDS_Logger_NVRAM
             {
                 connection.Open();
 
-                int idToUpdate = lB.LBId; 
+                int idToUpdate = lB.LBId;
                 string updateQuery = @"UPDATE LBs 
                                    SET name = @name, 
                                        key = @key, 
@@ -422,7 +349,6 @@ namespace LKDS_Logger_NVRAM
                     command.Parameters.AddWithValue("@last_dump", lB.LBLastDump);
 
                     int rowsAffected = command.ExecuteNonQuery();
-                    Console.WriteLine($"Rows affected: {rowsAffected}");
                 }
             }
         }
@@ -445,7 +371,7 @@ namespace LKDS_Logger_NVRAM
                 }
 
                 // Удаление таблицы с названием, соответствующим этому id
-                string dropTableQuery = "DROP TABLE IF EXISTS dump_"+ idToDelete.ToString();
+                string dropTableQuery = "DROP TABLE IF EXISTS dump_" + idToDelete.ToString();
                 using (SQLiteCommand dropCommand = new SQLiteCommand(dropTableQuery, connection))
                 {
                     int rowsAffected = dropCommand.ExecuteNonQuery();
@@ -453,7 +379,7 @@ namespace LKDS_Logger_NVRAM
                 }
             }
         }
-/*        // ОБЕ ФУНКЦИИ НИЖЕ ЕЩЕ НЕ ПРОВЕРЕНЫ И МОГУТ НЕ РАБОТАТЬ*/
+        /*        // ОБЕ ФУНКЦИИ НИЖЕ ЕЩЕ НЕ ПРОВЕРЕНЫ И МОГУТ НЕ РАБОТАТЬ*/
 
         public List<Dump> GetAllDumps(int lBid)
         {
@@ -463,7 +389,7 @@ namespace LKDS_Logger_NVRAM
             {
                 connection.Open();
 
-                
+
                 string tableName = $"dump_{lBid}";
 
                 string selectQuery = $"SELECT * FROM {tableName}";
@@ -479,8 +405,6 @@ namespace LKDS_Logger_NVRAM
                             dump.id = reader.GetInt32(reader.GetOrdinal("id"));
                             dump.Data = reader.GetString(reader.GetOrdinal("data"));
                             dump.TimeDate = reader.GetString(reader.GetOrdinal("time"));
-
-                            Console.WriteLine($"id: 0, data: {dump.Data}, time: {dump.TimeDate}");
                             dumps.Add(dump);
                         }
                     }
@@ -490,7 +414,7 @@ namespace LKDS_Logger_NVRAM
 
             return dumps;
         }
-        public Dump GetLastDump(int lBId) 
+        public Dump GetLastDump(int lBId)
         {
             Dump dump = new Dump();
             string connectionString = "Data Source=" + baseName + ";Version=3;";
@@ -498,7 +422,7 @@ namespace LKDS_Logger_NVRAM
             {
                 connection.Open();
 
- 
+
                 string tableName = $"dump_{lBId}";
 
                 string selectQuery = $"SELECT * FROM {tableName} ORDER BY id DESC LIMIT 1";
@@ -512,7 +436,6 @@ namespace LKDS_Logger_NVRAM
                             dump.id = reader.GetInt32(reader.GetOrdinal("id"));
                             dump.Data = reader.GetString(reader.GetOrdinal("data"));
                             dump.TimeDate = reader.GetString(reader.GetOrdinal("time"));
-                            Console.WriteLine($"id: {dump.id}, data: {dump.Data}, time: {dump.TimeDate}");
                         }
                         else
                         {
@@ -544,7 +467,7 @@ namespace LKDS_Logger_NVRAM
                     command.Parameters.AddWithValue("@time", dump.TimeDate);
 
                     int rowsAffected = command.ExecuteNonQuery();
-                    Console.WriteLine($"Rows affected: {rowsAffected}");
+                    Console.WriteLine($"Rows affected Dump to SQL: {rowsAffected}");
                 }
             }
         }
@@ -591,5 +514,66 @@ namespace LKDS_Logger_NVRAM
             }
         }
 
+
+        public void UpdateLastChange(int id, string newLastChange)
+        {
+            string connectionString = $"Data Source={baseName};Version=3;";
+
+            using (SQLiteConnection connection = new SQLiteConnection(connectionString))
+            {
+                connection.Open();
+
+                string query = "UPDATE LBs SET last_change = @newLastChange WHERE id = @id";
+
+                using (SQLiteCommand command = new SQLiteCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@newLastChange", newLastChange);
+                    command.Parameters.AddWithValue("@id", id);
+
+                    int rowsAffected = command.ExecuteNonQuery();
+
+                    if (rowsAffected > 0)
+                    {
+                        Console.WriteLine("Last Change updated successfully.");
+                    }
+                    else
+                    {
+                        Console.WriteLine("No Last Change record found with the specified id.");
+                    }
+                }
+            }
+
+        }
+        public void UpdateLastDump(int id, string newLastDump)
+        {
+            string connectionString = $"Data Source={baseName};Version=3;";
+
+            using (SQLiteConnection connection = new SQLiteConnection(connectionString))
+            {
+                connection.Open();
+
+                string query = "UPDATE LBs SET last_dump = @newLastChange WHERE id = @id";
+
+                using (SQLiteCommand command = new SQLiteCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@newLastChange", newLastDump);
+                    command.Parameters.AddWithValue("@id", id);
+
+                    int rowsAffected = command.ExecuteNonQuery();
+
+                    if (rowsAffected > 0)
+                    {
+                        Console.WriteLine("Last Dump Record updated successfully.");
+                    }
+                    else
+                    {
+                        Console.WriteLine("No Last Dump  record found with the specified id.");
+                    }
+                }
+            }
+
+        }
+
+
     }
-}
+ }

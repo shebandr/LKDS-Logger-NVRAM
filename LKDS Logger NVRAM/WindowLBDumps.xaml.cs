@@ -35,8 +35,8 @@ namespace LKDS_Logger_NVRAM
             LBStatus.Content = currentLB.LBStatus;
             LBLastChange.Content = currentLB.LBLastChange;
             Title = currentLB.LBName;
-
-            lBAddConnect.GetDumpFromLBToSQL(inputLB, index, MW);
+/*
+            lBAddConnect.GetDumpFromLBToSQL(inputLB, index, MW);*/
 
             Dumps = new ObservableCollection<Dump>(lBAddConnect.GetAllDumps(currentLB.LBId));
             DumpList.ItemsSource = Dumps;

@@ -49,7 +49,7 @@
                 <CheckBox Grid.Row="5" Grid.Column="1" x:Name="CheckBoxAddWindowClosing" Margin="0 5 0 0" Unchecked="WindowClosingcheckBox_Unchecked" Checked="WindowClosingcheckBox_Checked" IsChecked="True"></CheckBox>
 
 
-                <Label Grid.Row="0"  Grid.Column="3">Интервал опроса ЛБ</Label>
+                <Label Grid.Row="0"  Grid.Column="3">Интервал опроса ЛБ (ч:мин)</Label>
                 <Label Grid.Row="1"  Grid.Column="3">Подсветка изменений после</Label>
                 <Label Grid.Row="2"  Grid.Column="3">Начало опроса ЛБ</Label>
                 <Label Grid.Row="3"  Grid.Column="3">Идентифик.</Label>
@@ -66,10 +66,11 @@
                 <Button Grid.Row="4" Grid.Column="4" Width="100" x:Name="SettingsApplyButton" Click="SettingsApplyButtonClick" Margin=" 0 0 100 0">Применить</Button>
             </Grid>
             <StackPanel Orientation="Horizontal">
-                <TextBlock Margin="220 0 0 0"  Width="130" TextAlignment="Center">Имя</TextBlock>
+                <TextBlock Margin="100 0 0 0"  Width="130" TextAlignment="Center">Имя</TextBlock>
                 <TextBlock Margin="0 0 0 0" Width="140" TextAlignment="Center">IP:порт данных</TextBlock>
                 <TextBlock Margin="5 0 0 0" Width="60" TextAlignment="Center">Id</TextBlock>
                 <TextBlock Margin="5 0 0 0" Width="100" TextAlignment="Center">Текущий статус</TextBlock>
+                <TextBlock Margin="5 0 0 0" Width="100" TextAlignment="Center">Последний ответ</TextBlock>
                 <TextBlock Margin="5 0 0 0" Width="100" TextAlignment="Center">Изменён</TextBlock>
                
             </StackPanel>
@@ -85,13 +86,14 @@
                                     <Image Source="resources\edit.png" />
                                 </Button>
                                 <StackPanel Orientation="Horizontal" MouseLeftButtonDown ="LBRowClick" Tag="{Binding Path=LBId}" >
-                                    <TextBlock x:Name="LBNameSPE1" Width="250" TextAlignment="Center" Text="{Binding Path=LBName}"></TextBlock>
+                                    <TextBlock x:Name="LBNameSPE1" Width="120" TextAlignment="Center" Text="{Binding Path=LBName}"></TextBlock>
                                     <TextBlock x:Name="LBIP1" Width="120" TextAlignment="Right"  Text="{Binding Path=LBIpString}"></TextBlock>
                                     <TextBlock>:</TextBlock>
                                     <TextBlock x:Name="LBPort1" Width="60" TextAlignment="Left" Text="{Binding Path=LBPort}"></TextBlock>
                                     <TextBlock x:Name="LBId1" Width="60" TextAlignment="Center" Text="{Binding Path=LBId}"></TextBlock>
-                                    <TextBlock x:Name="LBStatus" Width="100" TextAlignment="Center" Text="{Binding Path=LBStatus}"></TextBlock>
-                                    <TextBlock x:Name="LBLastChange" Width="100" TextAlignment="Center" Text="{Binding Path=LBLastChange}"></TextBlock>
+                                    <TextBlock x:Name="LBStatus" Width="80" TextAlignment="Center" Text="{Binding Path=LBStatus}"></TextBlock>
+                                    <TextBlock x:Name="LBLastDump" Width="130" TextAlignment="Center" Text="{Binding Path=LBLastDump}"></TextBlock>
+                                    <TextBlock x:Name="LBLastChange" Width="130" TextAlignment="Center" Text="{Binding Path=LBLastChange}"></TextBlock>
                                 </StackPanel>
                             </StackPanel>
                         </Border>

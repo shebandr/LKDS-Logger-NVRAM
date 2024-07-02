@@ -23,6 +23,7 @@ using System.Diagnostics.Eventing.Reader;
 using System.Threading;
 using System.Globalization;
 using Microsoft.SqlServer.Server;
+using System.Data.Entity.Spatial;
 
 namespace LKDS_Logger_NVRAM
 {   
@@ -38,34 +39,23 @@ namespace LKDS_Logger_NVRAM
         public DateTime TimeStart;
         public int TimeInterval = 0;
         public DateTime TimeCheck;
+        public int WaitToDetached = 0;
         public ObservableCollection<LB> LBs { get; set; }
         List<string> LBTempWhileRedacting = new List<string>() { "", "", "", "", ""};
         LBAddConnect lBAddConnect = new LBAddConnect();
         public List<LB> LBListForDetached;
+        private CancellationTokenSource cancellationTokenSource;
+        DetachedAsks DA;
         public MainWindow()
         {
             InitializeComponent();
             LKDSFramework.DriverV7Net driverV7Net = new LKDSFramework.DriverV7Net();
-            /*LB LBTemp = new LB();
-            LBTemp.LBName = "123";
-            LBTemp.LBKey= "qwerty1234";
-            LBTemp.LBId = 51191;
-            LBTemp.LBIpString = "LKDSCloud";
-            LBTemp.LBPort = 0;
-            LBTemp.LBStatus = "отвечает";
-            LBTemp.LBLastChange = "01.01.2003 12:49";
-*/
-            
-            /*lBAddConnect.DBInitiate()*/
-            /*            ;
-                        LB tempLB = new LB();
-                        tempLB = lBAddConnect.LBFromSQL(51191);*/
+
             if (!File.Exists("LBDumps.db3")){
                 lBAddConnect.DBInitiate();
             }
             LBs = new ObservableCollection<LB>(lBAddConnect.AllLBIdFromSQL());
             LBList.ItemsSource = LBs;
-            /*            lBAddConnect.GetDumpFromLBToSQL(LBs[0]);*/
 
 
             Loaded += MainWindow_Loaded;
@@ -73,8 +63,9 @@ namespace LKDS_Logger_NVRAM
         }
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
+            cancellationTokenSource = new CancellationTokenSource();
             LBListForDetached = new List<LB>(LBs);
-            DetachedAsks DA = new DetachedAsks(mutexMW, 5, LBListForDetached, this);
+            DA = new DetachedAsks(mutexMW, 0, 5, LBListForDetached, this, cancellationTokenSource.Token);
         }
 
         private void LBRedactButton_Click(object sender, RoutedEventArgs e)
@@ -379,7 +370,7 @@ namespace LKDS_Logger_NVRAM
             int Hours = -1;
             if (Int32.TryParse(HoursUpDown.Text, out Hours))
             {
-                TimeInterval += Int32.Parse(HoursUpDown.Text) * 3600;
+
             }
             else
             {
@@ -388,7 +379,7 @@ namespace LKDS_Logger_NVRAM
             int Minutes = -1;
             if (Int32.TryParse(MinutesUpDown.Text, out Minutes))
             {
-                TimeInterval += Int32.Parse(MinutesUpDown.Text) * 60;
+                
 
             }
             else
@@ -401,7 +392,6 @@ namespace LKDS_Logger_NVRAM
             DateTime? DateTimeCheckAfter = LBTimeCheck.Value;
             if (DateTimeCheckAfter.HasValue)
             {
-                TimeCheck = DateTimeCheckAfter.Value;
                 Console.WriteLine("Selected DateTime: " + DateTimeCheckAfter.Value.ToString("yyyy-MM-dd HH:mm:ss"));
             }
             else
@@ -413,7 +403,7 @@ namespace LKDS_Logger_NVRAM
             DateTime? DateTimeCheckStart = LBCheckStart.Value;
             if (DateTimeCheckStart.HasValue)
             {
-                TimeStart = DateTimeCheckStart.Value;
+                
                 Console.WriteLine("Selected DateTime: " + DateTimeCheckStart.Value.ToString("yyyy-MM-dd HH:mm:ss"));
             }
             else
@@ -448,6 +438,26 @@ namespace LKDS_Logger_NVRAM
                 SettingsErrorLabel.Content = tempError;
             } else
             {
+                TimeInterval = 0;
+                TimeInterval += Int32.Parse(MinutesUpDown.Text) * 60;
+                TimeStart = DateTimeCheckStart.Value;
+                TimeInterval += Int32.Parse(HoursUpDown.Text) * 3600;
+                TimeCheck = DateTimeCheckAfter.Value;
+
+                DateTime end = DateTime.Now;
+                int TimeFromStart = (int)((end - TimeStart).TotalSeconds);
+                if(TimeInterval == 0)
+                {
+                    TimeInterval = 3600;
+                }
+                int TimeFromStartSub = TimeFromStart % TimeInterval;
+                Console.WriteLine(TimeFromStart + " " + TimeFromStartSub);
+                WaitToDetached = TimeFromStartSub;
+
+                cancellationTokenSource.Cancel();
+                cancellationTokenSource = new CancellationTokenSource();
+                DA = new DetachedAsks(mutexMW, TimeFromStartSub*-1, TimeInterval, LBListForDetached, this, cancellationTokenSource.Token);
+
                 SettingsErrorLabel.Content = "Применено";
                 // реализовать тут засовывание переменных в глобальные настройки
             }
@@ -468,10 +478,13 @@ namespace LKDS_Logger_NVRAM
             {
                 UniversalKeyError.Content = "Ключ слишком короткий";
                 UsingUniversalKey = false;
+                CheckBoxUniversalKey.IsChecked = false;
             } else
             {
                 UniversalKeyError.Content = "Ключ задан";
                 UsingUniversalKey = true;
+                CheckBoxUniversalKey.IsChecked = true;
+
             }
         }
 

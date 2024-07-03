@@ -1,4 +1,4 @@
-﻿using LKDSFramework.Packs;
+﻿    using LKDSFramework.Packs;
 using LKDSFramework;
 using System;
 using System.Collections.Generic;
@@ -107,6 +107,7 @@ namespace LKDS_Logger_NVRAM
                     }
                 }
             }
+            Thread.Sleep(200);
             while (true)
             {
                 doneEvent.WaitOne();
@@ -129,7 +130,11 @@ namespace LKDS_Logger_NVRAM
                 }
                 else
                 {
-                    doneEvent.Reset();
+
+                    Dump dump = new Dump();
+                    dump.id = -1;
+                    return dump;
+                    /*doneEvent.Reset();*/
                 }
             }
 

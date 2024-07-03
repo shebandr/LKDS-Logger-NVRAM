@@ -58,6 +58,9 @@ namespace LKDS_Logger_NVRAM
             LBList.ItemsSource = LBs;
 
 
+            GetSettingsFromSQL(false);
+
+
             Loaded += MainWindow_Loaded;
 
         }
@@ -66,6 +69,42 @@ namespace LKDS_Logger_NVRAM
             cancellationTokenSource = new CancellationTokenSource();
             LBListForDetached = new List<LB>(LBs);
             DA = new DetachedAsks(mutexMW, 0, 5, LBListForDetached, this, cancellationTokenSource.Token);
+        }
+
+        private List<Dictionary<string, object>> GetSettingsFromSQL(bool type) // true - запись во все поля, false - возвращение данных в виде словаря
+        {
+
+            List<Dictionary<string, object>> settingsDict = lBAddConnect.GetAllSettings();
+            if (type == true)
+            {
+                return settingsDict;
+            }
+            else
+            {
+                UniversalKey = LBUniversalKey.Text = settingsDict[0]["universal_key"].ToString();
+                CheckBoxUniversalKey.IsChecked = UsingUniversalKey = (bool)settingsDict[0]["uk_use"];
+                CheckBoxAddWindowClosing.IsChecked = WindowsClosing = (bool)settingsDict[0]["window_close"];
+                CheckBoxInputClearing.IsChecked = InputsClear = (bool)settingsDict[0]["fields_clear"];
+                List<int> timeInterval = TimeForInterval(Int32.Parse(settingsDict[0]["interval"].ToString()));
+                TimeInterval = Int32.Parse(settingsDict[0]["interval"].ToString());
+                MinutesUpDown.Text = timeInterval[1].ToString();
+                HoursUpDown.Text = timeInterval[0].ToString();
+                LBCheckStart.Value = DateTime.ParseExact(settingsDict[0]["dumping_start"].ToString(), "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
+                LBTimeCheck.Value = DateTime.ParseExact(settingsDict[0]["changes_detect"].ToString(), "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
+                PCIdentific.Text = settingsDict[0]["identific"].ToString();
+                Console.WriteLine("ИДЕНТИФИК: " + settingsDict[0]["identific"].ToString());
+                return settingsDict;
+            }
+
+        }
+
+        private List<int> TimeForInterval(int seconds)
+        {
+
+            List<int> time = new List<int>();
+            time.Add(seconds / 3600);
+            time.Add(seconds % 60);
+            return time;
         }
 
         private void LBRedactButton_Click(object sender, RoutedEventArgs e)
@@ -463,9 +502,11 @@ namespace LKDS_Logger_NVRAM
                 cancellationTokenSource.Cancel();
                 cancellationTokenSource = new CancellationTokenSource();
                 DA = new DetachedAsks(mutexMW, TimeFromStartSub*-1, TimeInterval, LBListForDetached, this, cancellationTokenSource.Token);
+                List<Dictionary<string, object>> tempData = GetSettingsFromSQL(true);
 
+                lBAddConnect.UpdateSettings(tempData[0]["universal_key"].ToString(), (bool)tempData[0]["uk_use"], (bool)CheckBoxInputClearing.IsChecked, (bool)CheckBoxAddWindowClosing.IsChecked, TimeInterval,DateTimeCheckAfter.Value.ToString("yyyy-MM-dd HH:mm:ss"), DateTimeCheckStart.Value.ToString("yyyy-MM-dd HH:mm:ss"), Identific);
                 SettingsErrorLabel.Content = "Применено";
-                // реализовать тут засовывание переменных в глобальные настройки
+
             }
         }
 
@@ -478,8 +519,6 @@ namespace LKDS_Logger_NVRAM
 
         private void UniversalKeyButtonClick(object sender, RoutedEventArgs e)
         {
-            UniversalKey = LBUniversalKey.Text;
-            Console.WriteLine(UniversalKey);
             if (UniversalKey.Length < 6)
             {
                 UniversalKeyError.Content = "Ключ слишком короткий";
@@ -487,9 +526,18 @@ namespace LKDS_Logger_NVRAM
                 CheckBoxUniversalKey.IsChecked = false;
             } else
             {
+                UniversalKey = LBUniversalKey.Text;
                 UniversalKeyError.Content = "Ключ задан";
                 UsingUniversalKey = true;
                 CheckBoxUniversalKey.IsChecked = true;
+                List<Dictionary<string, object>> tempData = GetSettingsFromSQL(true);
+
+                lBAddConnect.UpdateSettings(UniversalKey, UsingUniversalKey, (bool)tempData[0]["fields_clear"], (bool)tempData[0]["window_close"], Int32.Parse(tempData[0]["interval"].ToString()), tempData[0]["dumping_start"].ToString(), tempData[0]["changes_detect"].ToString(), Int32.Parse(tempData[0]["identific"].ToString()));
+
+
+
+
+
 
             }
         }

@@ -42,7 +42,6 @@ namespace LKDS_Logger_NVRAM
 
             try
             {
-                int index = 0;
                 while (!cancellationToken.IsCancellationRequested)
                 {
                     Console.WriteLine("запрос лб отправляется");

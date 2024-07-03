@@ -107,10 +107,12 @@ namespace LKDS_Logger_NVRAM
                     }
                 }
             }
+            Console.WriteLine("начало сна");
             Thread.Sleep(200);
+            Console.WriteLine("конец сна");
             while (true)
             {
-                doneEvent.WaitOne();
+  /*              doneEvent.WaitOne();*/
 
                 Console.WriteLine("должно начать работать " + BytesCount + " " + DumpSizeBites);
                 if (BytesCount - 1 == DumpSizeBites)
@@ -212,21 +214,139 @@ namespace LKDS_Logger_NVRAM
                 using (SQLiteCommand command = new SQLiteCommand(connection))
                 {
                     command.CommandText = @"CREATE TABLE IF NOT EXISTS [LBs] (
-                    [inner_id] integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-                    [id] integer NOT NULL,
-                    [name] char(100) NOT NULL,
-                    [key] char(100) NOT NULL,
-                    [ip] char(100) NOT NULL,
-                    [port] integer NOT NULL,
-                    [status] char(100) NOT NULL,
-                    [last_change] char(100) NOT NULL,
-                    [last_dump] char(100) NOT NULL
-                    );";
+            [inner_id] integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+            [id] integer NOT NULL,
+            [name] char(100) NOT NULL,
+            [key] char(100) NOT NULL,
+            [ip] char(100) NOT NULL,
+            [port] integer NOT NULL,
+            [status] char(100) NOT NULL,
+            [last_change] char(100) NOT NULL,
+            [last_dump] char(100) NOT NULL
+            );";
+                    command.CommandType = CommandType.Text;
+                    command.ExecuteNonQuery();
+                }
+                using (SQLiteCommand command = new SQLiteCommand(connection))
+                {
+                    command.CommandText = @"CREATE TABLE IF NOT EXISTS [Settings] (
+            [inner_id] integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+            [universal_key] char(100) NOT NULL,
+            [uk_use] bool NOT NULL,
+            [fields_clear] bool NOT NULL,
+            [window_close] bool NOT NULL,
+            [interval] integer NOT NULL,
+            [changes_detect] char(100) NOT NULL,
+            [dumping_start] char(100) NOT NULL,
+            [identific] integer NOT NULL
+            );";
                     command.CommandType = CommandType.Text;
                     command.ExecuteNonQuery();
                 }
             }
+            UpdateSettings("12345678", false, false, true, 3600, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") , DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), 1);
         }
+
+
+
+        public void UpdateSettings(string universalKey, bool ukUse, bool fieldsClear, bool windowClose, int interval, string changesDetect, string dumpingStart, int identific)
+        {
+            string connectionString = "Data Source=" + baseName + ";Version=3;";
+            using (SQLiteConnection connection = new SQLiteConnection(connectionString))
+            {
+                connection.Open();
+                using (SQLiteCommand command = new SQLiteCommand(connection))
+                {
+                    // Проверяем, существует ли уже запись
+                    command.CommandText = "SELECT COUNT(*) FROM Settings";
+                    int count = Convert.ToInt32(command.ExecuteScalar());
+
+                    if (count > 0)
+                    {
+                        // Обновляем существующую запись
+                        command.CommandText = @"UPDATE Settings SET 
+                    universal_key = @universalKey, 
+                    uk_use = @ukUse, 
+                    fields_clear = @fieldsClear, 
+                    window_close = @windowClose, 
+                    interval = @interval, 
+                    changes_detect = @changesDetect, 
+                    dumping_start = @dumpingStart, 
+                    identific = @identific";
+                    }
+                    else
+                    {
+                        // Вставляем новую запись
+                        command.CommandText = @"INSERT INTO Settings (
+                    universal_key, 
+                    uk_use, 
+                    fields_clear, 
+                    window_close, 
+                    interval, 
+                    changes_detect, 
+                    dumping_start, 
+                    identific) 
+                    VALUES (
+                    @universalKey, 
+                    @ukUse, 
+                    @fieldsClear, 
+                    @windowClose, 
+                    @interval, 
+                    @changesDetect, 
+                    @dumpingStart, 
+                    @identific)";
+                    }
+
+                    command.Parameters.AddWithValue("@universalKey", universalKey);
+                    command.Parameters.AddWithValue("@ukUse", ukUse);
+                    command.Parameters.AddWithValue("@fieldsClear", fieldsClear);
+                    command.Parameters.AddWithValue("@windowClose", windowClose);
+                    command.Parameters.AddWithValue("@interval", interval);
+                    command.Parameters.AddWithValue("@changesDetect", changesDetect);
+                    command.Parameters.AddWithValue("@dumpingStart", dumpingStart);
+                    command.Parameters.AddWithValue("@identific", identific);
+
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+
+
+        public List<Dictionary<string, object>> GetAllSettings()
+        {
+            string connectionString = "Data Source=" + baseName + ";Version=3;";
+            List<Dictionary<string, object>> settingsList = new List<Dictionary<string, object>>();
+
+            using (SQLiteConnection connection = new SQLiteConnection(connectionString))
+            {
+                connection.Open();
+                using (SQLiteCommand command = new SQLiteCommand("SELECT * FROM Settings", connection))
+                {
+                    using (SQLiteDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            Dictionary<string, object> settings = new Dictionary<string, object>
+                    {
+                        { "inner_id", reader["inner_id"] },
+                        { "universal_key", reader["universal_key"] },
+                        { "uk_use", reader["uk_use"] },
+                        { "fields_clear", reader["fields_clear"] },
+                        { "window_close", reader["window_close"] },
+                        { "interval", reader["interval"] },
+                        { "changes_detect", reader["changes_detect"] },
+                        { "dumping_start", reader["dumping_start"] },
+                        { "identific", reader["identific"] }
+                    };
+                            settingsList.Add(settings);
+                        }
+                    }
+                }
+            }
+
+            return settingsList;
+        }
+
         public LB LBFromSQL(int lBId)
         {
 

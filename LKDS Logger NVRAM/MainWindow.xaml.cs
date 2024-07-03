@@ -301,18 +301,24 @@ namespace LKDS_Logger_NVRAM
                 ErrorList.Add("Длина ключа");
             }
 
-            
 
-
-
-            for (int i = 0; i < LBs.Count; i++)
+            if (input[1].Length > 10)
             {
-                if (LBs[i].LBId == Int32.Parse(input[1]))
+                ErrorList.Add("Длина айди");
+            } else
+            {
+                for (int i = 0; i < LBs.Count; i++)
                 {
-                    ErrorList.Add("Такой ЛБ существует");
-                    break;
+                    if (LBs[i].LBId == Int32.Parse(input[1]))
+                    {
+                        ErrorList.Add("Такой ЛБ существует");
+                        break;
+                    }
                 }
             }
+
+
+
 
             return ErrorList;
         }

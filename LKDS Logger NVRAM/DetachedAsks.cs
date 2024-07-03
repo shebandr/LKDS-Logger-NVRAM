@@ -52,7 +52,9 @@ namespace LKDS_Logger_NVRAM
                     {
                         for (int i = 0; i<LBs.Count; i++)
                         {
+                            Console.WriteLine("обработка лб номер " + i + " " + LBs[i].LBName);
                             lBAddConnect.GetDumpFromLBToSQL(LBs[i], i, mw);
+                            Console.WriteLine("конец обработки лб номер " + i);
                         }
                     }
                     catch (Exception ex)

@@ -35,9 +35,9 @@ namespace LKDS_Logger_NVRAM
             TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>();
             int flag = 0;
             DriverV7Net driver = new DriverV7Net();
-
             driver.OnReceiveData = delegate (PackV7 pack)
             {
+                Console.WriteLine("делегированная функция запущена");
                 if (pack is LKDSFramework.Packs.DataDirect.PackV7NVRAMAns)
                 {
                     LKDSFramework.Packs.DataDirect.PackV7NVRAMAns dump = pack as LKDSFramework.Packs.DataDirect.PackV7NVRAMAns;
@@ -52,26 +52,23 @@ namespace LKDS_Logger_NVRAM
 
 
                         flag++;
-
+                        Console.Write(i + " ");
 
                     }
-
-
+                    Console.WriteLine();
                 }
-
+                Console.Write("костыль в асинке: " + dumpBytes.Count());
                 if (!doneEvent.SafeWaitHandle.IsClosed)
                 {
                     doneEvent.Set();
                 }
 
             };
-
             if (driver.Init())
             {
                 DeviceV7 dev;
                 if (LBAsked.LBIpString == "LKDSCloud")
                 {
-
                     dev = new DeviceV7()
                     {
                         IP = DeviceV7.CloudIP,
@@ -90,7 +87,6 @@ namespace LKDS_Logger_NVRAM
                         Pass = LBAsked.LBKey
                     };
                 }
-
                 driver.AddDevice(ref dev);
                 for (int i = StartByte; i < DumpSizeBites; i += PacketSize)
                 {
@@ -111,14 +107,15 @@ namespace LKDS_Logger_NVRAM
                     }
                 }
             }
-
-
             while (true)
             {
                 doneEvent.WaitOne();
+
+                Console.WriteLine("должно начать работать " + BytesCount + " " + DumpSizeBites);
                 if (BytesCount - 1 == DumpSizeBites)
                 {
                     string tempStrDump = BitConverter.ToString(dumpBytes.ToArray()).Replace("-", string.Empty);
+                    Console.WriteLine("длина костылей: " + dumpBytes.Count.ToString() + " " + tempStrDump.Length + " " + tempStrDump);
                     string dumpStr = "";
                     for (int i = 0; i < dumpBytes.Count; i++)
                     {
@@ -136,12 +133,13 @@ namespace LKDS_Logger_NVRAM
                 }
             }
 
-
         }
 
         public void GetDumpFromLBToSQL(LB lb, int index, MainWindow MW)
         {
+            Console.WriteLine(lb.LBId + " " + index); 
             Dump ActualDump = GetDump(lb);
+            Console.WriteLine(lb.LBId + " " + index);
             if (ActualDump.id == -1)
             {
                 lb.LBStatus = "не отвечает";

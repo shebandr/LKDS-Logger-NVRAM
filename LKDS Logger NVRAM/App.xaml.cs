@@ -13,5 +13,20 @@ namespace LKDS_Logger_NVRAM
     /// </summary>
     public partial class App : Application
     {
+        public static string CommandLineArgument { get; private set; }
+
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            base.OnStartup(e);
+
+            if (e.Args.Length > 0)
+            {
+                CommandLineArgument = e.Args[0];
+            }
+            else
+            {
+                CommandLineArgument = string.Empty;
+            }
+        }
     }
 }

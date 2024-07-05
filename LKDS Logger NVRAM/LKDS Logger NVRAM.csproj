@@ -43,6 +43,9 @@
     <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.4.4\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
+    <Reference Include="Hardcodet.NotifyIcon.Wpf, Version=1.1.0.0, Culture=neutral, PublicKeyToken=682384a853a08aad, processorArchitecture=MSIL">
+      <HintPath>..\packages\Hardcodet.NotifyIcon.Wpf.1.1.0\lib\net45\Hardcodet.NotifyIcon.Wpf.dll</HintPath>
+    </Reference>
     <Reference Include="LKDSFramework">
       <HintPath>.\LKDSFramework.dll</HintPath>
     </Reference>
@@ -162,6 +165,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="resources\edit.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="resources\trayIcon.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

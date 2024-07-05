@@ -49,6 +49,7 @@ namespace LKDS_Logger_NVRAM
         public List<LB> LBListForDetached;
         private CancellationTokenSource cancellationTokenSource;
         DetachedAsks DA;
+        private WindowState prevState;
         public MainWindow()
         {
             InitializeComponent();
@@ -57,12 +58,28 @@ namespace LKDS_Logger_NVRAM
             if (!File.Exists("LBDumps.db3")){
                 lBAddConnect.DBInitiate();
             }
+
+
+
+            if (!string.IsNullOrEmpty(App.CommandLineArgument))
+            {
+                Console.WriteLine($"Аргумент командной строки: {App.CommandLineArgument}");
+                List<LB> StartupLBs = GetStartupLBs(App.CommandLineArgument);
+            }
+            else
+            {
+                Console.WriteLine("Аргумент командной строки не указан.");
+            }
+
+
+
             LBs = new ObservableCollection<LB>(lBAddConnect.AllLBIdFromSQL());
             LBList.ItemsSource = LBs;
 
 
             GetSettingsFromSQL(false);
-
+            this.StateChanged += Window_StateChanged;
+            this.TaskbarIcon.TrayLeftMouseDown += TaskbarIcon_TrayLeftMouseDown;
 
             Loaded += MainWindow_Loaded;
 
@@ -75,6 +92,16 @@ namespace LKDS_Logger_NVRAM
                 LBListForDetached = new List<LB>(LBs);
                 DA = new DetachedAsks(mutexMW, 0, TimeInterval, new List<LB>(LBs), this, cancellationTokenSource.Token);
             }), DispatcherPriority.Background);
+        }
+
+
+        private List<LB> GetStartupLBs(string path)
+        {
+            List<LB> lBs = new List<LB>();
+
+
+
+            return lBs;
         }
 
         private List<Dictionary<string, object>> GetSettingsFromSQL(bool type) // true - запись во все поля, false - возвращение данных в виде словаря
@@ -563,22 +590,24 @@ namespace LKDS_Logger_NVRAM
             }
         }
 
-/*
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        private void Window_StateChanged(object sender, EventArgs e)
         {
-            DateTime dateTime1 = TimeCheck;
-            DateTime dateTime2 = DateTime.ParseExact(dateTimeString2, format, System.Globalization.CultureInfo.InvariantCulture);
-            if (value is int intValue && intValue > 5)
+            if (WindowState == WindowState.Minimized)
             {
-                return Brushes.LightGreen;
+                this.Hide();
             }
-            return Brushes.Transparent;
+            else
+            {
+                prevState = WindowState;
+            }
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        private void TaskbarIcon_TrayLeftMouseDown(object sender, RoutedEventArgs e)
         {
-            throw new NotImplementedException();
-        }*/
+            this.Show();
+            this.WindowState = prevState;
+            this.Activate(); // Активирует окно, чтобы оно было поверх других окон
+        }
 
     }
     

@@ -12,7 +12,7 @@ namespace LKDS_Logger_NVRAM
         public string name { get; set; }
         public string data { get; set; }
         public bool isChanged { get; set; }
-
+        public int NVRAMAddres { get; set; }
 
     }
 }

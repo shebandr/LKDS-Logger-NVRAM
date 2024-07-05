@@ -74,6 +74,7 @@
                 <TextBlock Margin="5 0 0 0"  Width="130" TextAlignment="Center">Примечание</TextBlock>
                
             </StackPanel>
+            
             <ListBox Width="800" x:Name="LBList" ScrollViewer.HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Left" MinHeight="370">
                 <ListBox.ItemTemplate>
                     <DataTemplate>

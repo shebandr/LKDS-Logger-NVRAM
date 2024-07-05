@@ -27,8 +27,8 @@ namespace LKDS_Logger_NVRAM
         private static ManualResetEvent doneEvent = new ManualResetEvent(false);
         public Dump GetDump(LB LBAsked)
         {
-            int DumpSizeBites = 255;
-            int PacketSize = 255;
+            int DumpSizeBites = 64;
+            int PacketSize = 64;
             int BytesCount = 0;
             int StartByte = 0;
             List<byte> dumpBytes = new List<byte>();
@@ -107,9 +107,7 @@ namespace LKDS_Logger_NVRAM
                     }
                 }
             }
-            Console.WriteLine("начало сна");
             Thread.Sleep(200);
-            Console.WriteLine("конец сна");
             while (true)
             {
   /*              doneEvent.WaitOne();*/
@@ -128,6 +126,7 @@ namespace LKDS_Logger_NVRAM
                     Dump dump = new Dump();
                     dump.TimeDate = DateTime.Now.ToString("dd-MM-yyyy HH:mm:ss");
                     dump.Data = dumpStr;
+                    Console.WriteLine("дамп возвращен");
                     return dump;
                 }
                 else
@@ -135,8 +134,10 @@ namespace LKDS_Logger_NVRAM
 
                     Dump dump = new Dump();
                     dump.id = -1;
+                    Console.WriteLine("дамп проблемный");
+
                     return dump;
-                    /*doneEvent.Reset();*/
+                    //
                 }
             }
 

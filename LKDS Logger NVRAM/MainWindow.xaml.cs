@@ -31,6 +31,7 @@ namespace LKDS_Logger_NVRAM
     {
         public string filePath = "lbs.xml";
         public bool WindowsClosing = false;
+        private string timeCheck;
         public bool InputsClear = false;
         public bool LBIsRedacted = false;
         public bool UsingUniversalKey = false;
@@ -68,7 +69,7 @@ namespace LKDS_Logger_NVRAM
         {
             cancellationTokenSource = new CancellationTokenSource();
             LBListForDetached = new List<LB>(LBs);
-            DA = new DetachedAsks(mutexMW, 0, 5, LBListForDetached, this, cancellationTokenSource.Token);
+            DA = new DetachedAsks(mutexMW, 0, TimeInterval, LBListForDetached, this, cancellationTokenSource.Token);
         }
 
         private List<Dictionary<string, object>> GetSettingsFromSQL(bool type) // true - запись во все поля, false - возвращение данных в виде словаря
@@ -91,6 +92,7 @@ namespace LKDS_Logger_NVRAM
                 HoursUpDown.Text = timeInterval[0].ToString();
                 LBCheckStart.Value = DateTime.ParseExact(settingsDict[0]["dumping_start"].ToString(), "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
                 LBTimeCheck.Value = DateTime.ParseExact(settingsDict[0]["changes_detect"].ToString(), "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
+                timeCheck = LBTimeCheck.Value.ToString();
                 PCIdentific.Text = settingsDict[0]["identific"].ToString();
                 Console.WriteLine("ИДЕНТИФИК: " + settingsDict[0]["identific"].ToString());
                 return settingsDict;
@@ -103,7 +105,7 @@ namespace LKDS_Logger_NVRAM
 
             List<int> time = new List<int>();
             time.Add(seconds / 3600);
-            time.Add(seconds % 60);
+            time.Add((seconds % 3600)/60);
             return time;
         }
 
@@ -501,7 +503,11 @@ namespace LKDS_Logger_NVRAM
 
                 cancellationTokenSource.Cancel();
                 cancellationTokenSource = new CancellationTokenSource();
-                DA = new DetachedAsks(mutexMW, TimeFromStartSub*-1, TimeInterval, LBListForDetached, this, cancellationTokenSource.Token);
+                if (TimeFromStartSub < 0) 
+                {
+                    TimeFromStartSub = TimeFromStartSub * -1;
+                }
+                DA = new DetachedAsks(mutexMW, TimeFromStartSub, TimeInterval, LBListForDetached, this, cancellationTokenSource.Token);
                 List<Dictionary<string, object>> tempData = GetSettingsFromSQL(true);
 
                 lBAddConnect.UpdateSettings(tempData[0]["universal_key"].ToString(), (bool)tempData[0]["uk_use"], (bool)CheckBoxInputClearing.IsChecked, (bool)CheckBoxAddWindowClosing.IsChecked, TimeInterval,DateTimeCheckAfter.Value.ToString("yyyy-MM-dd HH:mm:ss"), DateTimeCheckStart.Value.ToString("yyyy-MM-dd HH:mm:ss"), Identific);
@@ -519,7 +525,7 @@ namespace LKDS_Logger_NVRAM
 
         private void UniversalKeyButtonClick(object sender, RoutedEventArgs e)
         {
-            if (UniversalKey.Length < 6)
+            if (LBUniversalKey.Text.Length < 6)
             {
                 UniversalKeyError.Content = "Ключ слишком короткий";
                 UsingUniversalKey = false;
@@ -562,3 +568,4 @@ namespace LKDS_Logger_NVRAM
     }
     
 }
+

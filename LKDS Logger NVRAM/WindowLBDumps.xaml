@@ -37,16 +37,17 @@
         </Border>
         <StackPanel Grid.Row="0"  Grid.Column="1" HorizontalAlignment="left">
             <StackPanel Orientation="Horizontal">
+                <TextBlock Margin="5 0 0 0"> Порядковый номер </TextBlock>
                 <TextBlock Margin="10 0 0 0"> Время записи</TextBlock>
-                <TextBlock Margin="20 0 0 0"> Наличие изменений</TextBlock>
             </StackPanel>
-            <ListBox Width="230" x:Name="DumpList" ScrollViewer.HorizontalScrollBarVisibility="Disabled"  BorderThickness="0" Height="550">
+            <ListBox Width="230" x:Name="DumpList" ScrollViewer.HorizontalScrollBarVisibility="Disabled"  BorderThickness="0" Height="550" ScrollViewer.VerticalScrollBarVisibility="Visible">
 
             <ListBox.ItemTemplate >
                 <DataTemplate>
-                    <Border Background="AliceBlue" BorderBrush="LightGray" BorderThickness="1" CornerRadius="2" Height="25" Width="215" Margin=" 0 0 0 0">
+                    <Border Background="AliceBlue" BorderBrush="LightGray" BorderThickness="1" CornerRadius="2" Height="25" Width="200" Margin=" 0 0 0 0">
                             <StackPanel Orientation="Horizontal" Tag="{ Binding Path=id}" MouseLeftButtonDown ="DumpRowClick">
-                                <TextBlock Text="{Binding Path=TimeDate}" Margin="5 0 5 0" Width="150"></TextBlock>
+                                <TextBlock Text="{Binding Path=id}" Margin="15 0 5 0" Width="30"></TextBlock>
+                                <TextBlock Text="{Binding Path=TimeDate}" Margin="15 0 5 0" Width="120"></TextBlock>
                             </StackPanel>
                     </Border>
                 </DataTemplate>

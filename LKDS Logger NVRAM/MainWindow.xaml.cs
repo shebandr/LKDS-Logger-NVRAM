@@ -24,6 +24,7 @@ using System.Threading;
 using System.Globalization;
 using Microsoft.SqlServer.Server;
 using System.Data.Entity.Spatial;
+using System.Windows.Threading;
 
 namespace LKDS_Logger_NVRAM
 {   
@@ -41,6 +42,7 @@ namespace LKDS_Logger_NVRAM
         public int TimeInterval = 0;
         public DateTime TimeCheck;
         public int WaitToDetached = 0;
+        private int TimeFromStartSub = 0;
         public ObservableCollection<LB> LBs { get; set; }
         List<string> LBTempWhileRedacting = new List<string>() { "", "", "", "", ""};
         LBAddConnect lBAddConnect = new LBAddConnect();
@@ -67,9 +69,12 @@ namespace LKDS_Logger_NVRAM
         }
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            cancellationTokenSource = new CancellationTokenSource();
-            LBListForDetached = new List<LB>(LBs);
-            DA = new DetachedAsks(mutexMW, 0, TimeInterval, LBListForDetached, this, cancellationTokenSource.Token);
+            Dispatcher.BeginInvoke(new System.Action(() =>
+            {
+                cancellationTokenSource = new CancellationTokenSource();
+                LBListForDetached = new List<LB>(LBs);
+                DA = new DetachedAsks(mutexMW, 0, TimeInterval, new List<LB>(LBs), this, cancellationTokenSource.Token);
+            }), DispatcherPriority.Background);
         }
 
         private List<Dictionary<string, object>> GetSettingsFromSQL(bool type) // true - запись во все поля, false - возвращение данных в виде словаря
@@ -409,6 +414,16 @@ namespace LKDS_Logger_NVRAM
 
         }
 
+        private void ApplyLBButton_Click(object sender, RoutedEventArgs e)
+        {
+            cancellationTokenSource.Cancel();
+            cancellationTokenSource = new CancellationTokenSource();
+            if (TimeFromStartSub < 0)
+            {
+                TimeFromStartSub = TimeFromStartSub * -1;
+            }
+            DA = new DetachedAsks(mutexMW, TimeFromStartSub, TimeInterval, new List<LB>(LBs), this, cancellationTokenSource.Token);
+        }
 
 
         private void SettingsApplyButtonClick(object sender, RoutedEventArgs e)
@@ -497,7 +512,7 @@ namespace LKDS_Logger_NVRAM
                 {
                     TimeInterval = 3600;
                 }
-                int TimeFromStartSub = TimeFromStart % TimeInterval;
+                TimeFromStartSub = TimeFromStart % TimeInterval;
                 Console.WriteLine(TimeFromStart + " " + TimeFromStartSub);
                 WaitToDetached = TimeFromStartSub;
 
@@ -507,7 +522,7 @@ namespace LKDS_Logger_NVRAM
                 {
                     TimeFromStartSub = TimeFromStartSub * -1;
                 }
-                DA = new DetachedAsks(mutexMW, TimeFromStartSub, TimeInterval, LBListForDetached, this, cancellationTokenSource.Token);
+                DA = new DetachedAsks(mutexMW, TimeFromStartSub, TimeInterval, new List<LB>(LBs), this, cancellationTokenSource.Token);
                 List<Dictionary<string, object>> tempData = GetSettingsFromSQL(true);
 
                 lBAddConnect.UpdateSettings(tempData[0]["universal_key"].ToString(), (bool)tempData[0]["uk_use"], (bool)CheckBoxInputClearing.IsChecked, (bool)CheckBoxAddWindowClosing.IsChecked, TimeInterval,DateTimeCheckAfter.Value.ToString("yyyy-MM-dd HH:mm:ss"), DateTimeCheckStart.Value.ToString("yyyy-MM-dd HH:mm:ss"), Identific);

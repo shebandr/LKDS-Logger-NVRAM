@@ -24,6 +24,7 @@ namespace LKDS_Logger_NVRAM
         private string TempIpString = "";
         private string TempPortString = "";
         private int LBConnectType = 0;
+        private int StartId;
         private LBAddConnect lBAddConnect = new LBAddConnect();
         public WIndowLBEdit(MainWindow MW)
         {
@@ -49,6 +50,7 @@ namespace LKDS_Logger_NVRAM
             buttonLBAdd.Click += LBRedactApplyButton_Click;
             buttonLBAdd.Content = "Применить";
             LBRedactButton_Click(LBIndex);
+            
             if (WMG.LBs[LBIndex].LBIpString == "LKDSCloud")
             {
                 rb0.IsChecked = true;
@@ -74,6 +76,7 @@ namespace LKDS_Logger_NVRAM
             buttonLBAdd.Tag = RedactingLB.ToString();
             TempIpString = WMG.LBs[RedactingLB].LBIpString;
             TempPortString = WMG.LBs[RedactingLB].LBPort.ToString();
+            StartId = WMG.LBs[RedactingLB].LBId;
         }
 
         private void LBRedactApplyButton_Click(object sender, RoutedEventArgs e)
@@ -131,7 +134,7 @@ namespace LKDS_Logger_NVRAM
                 LBTemp.LBLastChange = WMG.LBs[RedactingLB].LBLastChange;
                 LBTemp.LBLastDump = WMG.LBs[RedactingLB].LBLastDump;
                 WMG.LBs[RedactingLB] = LBTemp;
-
+                lBAddConnect.LBEditSQL(LBTemp, StartId);
                 if (WMG.WindowsClosing == true)
                 {
                     this.Close();

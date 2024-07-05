@@ -16,6 +16,7 @@ using System.Runtime.Remoting;
 using System.Data.SqlClient;
 using System.IO;
 using System.Collections.ObjectModel;
+using System.Data.Entity.ModelConfiguration.Conventions;
 
 namespace LKDS_Logger_NVRAM
 {
@@ -359,7 +360,7 @@ namespace LKDS_Logger_NVRAM
             using (SQLiteConnection connection = new SQLiteConnection(connectionString))
             {
                 connection.Open();
-                int idToQuery = lBId; // Замените на нужный вам id
+                int idToQuery = lBId;
                 string query = "SELECT * FROM LBs WHERE id = @id";
 
                 using (SQLiteCommand command = new SQLiteCommand(query, connection))
@@ -443,23 +444,23 @@ namespace LKDS_Logger_NVRAM
             return LBs;
         }
 
-        public void LBEditSQL(LB lB)
+        public void LBEditSQL(LB lB, int idLB)
         {
-            string connectionString = "Data Source=your_database.db;Version=3;";
+            string connectionString = "Data Source=" + baseName + ";Version=3;";
             using (SQLiteConnection connection = new SQLiteConnection(connectionString))
             {
                 connection.Open();
 
-                int idToUpdate = lB.LBId;
+                int idToUpdate = idLB;
                 string updateQuery = @"UPDATE LBs 
-                                   SET name = @name, 
-                                       key = @key, 
-                                       ip = @ip, 
-                                       port = @port, 
-                                       status = @status, 
-                                       last_change = @last_change, 
-                                       last_dump = @last_dump 
-                                   WHERE id = @id";
+                           SET name = @name, 
+                               key = @key, 
+                               ip = @ip, 
+                               port = @port, 
+                               status = @status, 
+                               last_change = @last_change, 
+                               last_dump = @last_dump 
+                           WHERE id = @id";
 
                 using (SQLiteCommand command = new SQLiteCommand(updateQuery, connection))
                 {
@@ -473,6 +474,13 @@ namespace LKDS_Logger_NVRAM
                     command.Parameters.AddWithValue("@last_dump", lB.LBLastDump);
 
                     int rowsAffected = command.ExecuteNonQuery();
+                }
+
+                using (SQLiteCommand command = new SQLiteCommand(connection))
+                {
+                    command.CommandText = @"CREATE TABLE IF NOT EXISTS [dump_" + lB.LBId + "] ( [id] integer PRIMARY KEY AUTOINCREMENT NOT NULL, [data] char(800) NOT NULL, [time] char(100) NOT NULL);";
+                    command.CommandType = CommandType.Text;
+                    command.ExecuteNonQuery();
                 }
             }
         }

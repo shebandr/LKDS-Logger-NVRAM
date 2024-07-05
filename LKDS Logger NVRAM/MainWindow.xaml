@@ -105,6 +105,7 @@
                 <ListBox.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="Вставить описание ЛБ" Click="AddLBButton_Click"></MenuItem>
+                        <MenuItem Header="Применить изменения ЛБ" Click="ApplyLBButton_Click"></MenuItem>
                     </ContextMenu>
                 </ListBox.ContextMenu>
 

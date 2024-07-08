@@ -131,8 +131,8 @@ namespace LKDS_Logger_NVRAM
 
                 foreach (LB i in LBs)
                 {
-/*                    if (i.LBLastChange != "")
-                    {*/
+                    if (i.LBLastChange != null)
+                    {
                         if (DateTime.ParseExact(i.LBLastChange, "dd-MM-yyyy HH:mm:ss", null) > TimeCheck)
                         {
                             i.LBColor = "LightPink";
@@ -143,7 +143,7 @@ namespace LKDS_Logger_NVRAM
                             i.LBColor = "White";
 
                         }
-                    /*}*/
+                    }
                 }
 
                 return settingsDict;
@@ -575,8 +575,8 @@ namespace LKDS_Logger_NVRAM
                 SettingsErrorLabel.Content = "Применено";
                 foreach (LB i in LBs)
                 {
-                    /*if (i.LBLastChange != "")
-                    {*/
+                    if (i.LBLastChange != null)
+                    {
                         if (DateTime.ParseExact(i.LBLastChange, "dd-MM-yyyy HH:mm:ss", null) > TimeCheck)
                         {
                             i.LBColor = "LightPink";
@@ -588,7 +588,7 @@ namespace LKDS_Logger_NVRAM
 
                         }
 
-                    /*}*/
+                    }
                 }
             }
         }

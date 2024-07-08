@@ -407,14 +407,18 @@ namespace LKDS_Logger_NVRAM
                 ErrorList.Add("Длина айди");
             } else
             {
-                for (int i = 0; i < LBs.Count; i++)
+                if(ErrorList.Count == 0)
                 {
-                    if (LBs[i].LBId == Int32.Parse(input[1]))
+                    for (int i = 0; i < LBs.Count; i++)
                     {
-                        ErrorList.Add("Такой ЛБ существует");
-                        break;
+                        if (LBs[i].LBId == Int32.Parse(input[1]))
+                        {
+                            ErrorList.Add("Такой ЛБ существует");
+                            break;
+                        }
                     }
                 }
+
             }
 
 

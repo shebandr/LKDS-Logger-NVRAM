@@ -30,7 +30,7 @@ namespace LKDS_Logger_NVRAM
         {
             InitializeComponent();
             Console.WriteLine("Открыт " + idDump + " дамп");
-
+            
 
 
             List<string> lines = new List<string>
@@ -227,6 +227,7 @@ namespace LKDS_Logger_NVRAM
             }
             List<Dump> AllDumps = lbAddConnect.GetAllDumps(idLB);
             
+            
             List<ByteFromDump> AllBytes = new List<ByteFromDump>();
 
             if (AllDumps.Count == 1)
@@ -263,6 +264,7 @@ namespace LKDS_Logger_NVRAM
                     AllBytes.Add(byteFromDump);
                 }
             }
+            Title = AllDumps[idDump-1].TimeDate;
             int tempNVRAMNum = 0;
             for(int i = 1; i < 67; i++)
             {

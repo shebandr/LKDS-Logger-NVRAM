@@ -609,6 +609,13 @@ namespace LKDS_Logger_NVRAM
                 }
             }
         }
+        private async void FastCallAllButtonClick(object sender, EventArgs e)
+        {
+            await Dispatcher.BeginInvoke(new System.Action(async () =>
+            {
+                await DetachedAsks.RunOnceAsync(mutexMW, new List<LB>(LBs), this, cancellationTokenSource.Token);
+            }), DispatcherPriority.Background);
+        }
 
         private void EditLBWindow_Closed(object sender, System.EventArgs e)
         {

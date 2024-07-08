@@ -73,38 +73,41 @@ namespace LKDS_Logger_NVRAM
                 MW.ReleaseMutex();
             }
         }
-        /* public static async Task RunPeriodicallyAsync(int intervalSeconds, Mutex MW, List<LB> LBs, MainWindow mw)
-         {
-             if (!MW.WaitOne(TimeSpan.Zero, true))
-             {
-                 Console.WriteLine("Another instance is already running.");
-                 return;
-             }
+        public static async Task RunOnceAsync(Mutex MW, List<LB> LBs, MainWindow mw, CancellationToken cancellationToken)
+        {
+            if (!MW.WaitOne(TimeSpan.Zero, true))
+            {
+                Console.WriteLine("запущена иная копия");
+                return;
+            }
 
-             try
-             {
-                 int index= 0;
-                 while (true)
-                 {
-                     Console.WriteLine("проверка потока запросов");
-                     MW.WaitOne();
+            try
+            {
+                Console.WriteLine("запрос лб отправляется");
+                MW.WaitOne();
 
-                     foreach(var lb in LBs)
-                     {
-                         lBAddConnect.GetDumpFromLBToSQL(lb, index, mw);
-                         index++;
-
-                     }
-                     Console.WriteLine("1");
-                     MW.ReleaseMutex();
-                     await Task.Delay(intervalSeconds * 1000); 
-
-                 }
-             }
-             finally
-             {
-
-             }
-         }*/
+                try
+                {
+                    for (int i = 0; i < LBs.Count; i++)
+                    {
+                        Console.WriteLine("обработка лб номер " + i + " " + LBs[i].LBName);
+                        lBAddConnect.GetDumpFromLBToSQL(LBs[i], i, mw);
+                        Console.WriteLine("конец обработки лб номер " + i);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Ошибка при обработке списка LBs: {ex.Message}");
+                }
+                finally
+                {
+                    MW.ReleaseMutex();
+                }
+            }
+            finally
+            {
+                MW.ReleaseMutex();
+            }
+        }
     }
 }

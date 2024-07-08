@@ -132,24 +132,28 @@ namespace LKDS_Logger_NVRAM
                 timeCheck = LBTimeCheck.Value.ToString();
                 PCIdentific.Text = settingsDict[0]["identific"].ToString();
                 Console.WriteLine("ИДЕНТИФИК: " + settingsDict[0]["identific"].ToString());
-
-/*                foreach (LB i in LBs)
+                foreach (LB i in LBs)
                 {
-                    if (i.LBLastChange != null && TimeCheck != null)
+                    if (i.LBLastChange != null && TimeCheck != null && i.LBLastChange != "")
                     {
-                        if (DateTime.ParseExact(i.LBLastChange, "dd-MM-yyyy HH:mm:ss", null) > TimeCheck)
+                        try
                         {
-                            i.LBColor = "LightPink";
-
+                            DateTime lastChange = DateTime.ParseExact(i.LBLastChange, "dd-MM-yyyy HH:mm:ss", null);
+                            if (lastChange > TimeCheck)
+                            {
+                                i.LBColor = "LightPink";
+                            }
+                            else
+                            {
+                                i.LBColor = "White";
+                            }
                         }
-                        else
+                        catch (FormatException)
                         {
                             i.LBColor = "White";
-
                         }
                     }
-                }*/
-
+                }
                 return settingsDict;
             }
 
@@ -577,24 +581,29 @@ namespace LKDS_Logger_NVRAM
 
                 lBAddConnect.UpdateSettings(tempData[0]["universal_key"].ToString(), (bool)tempData[0]["uk_use"], (bool)CheckBoxInputClearing.IsChecked, (bool)CheckBoxAddWindowClosing.IsChecked, TimeInterval,DateTimeCheckAfter.Value.ToString("yyyy-MM-dd HH:mm:ss"), DateTimeCheckStart.Value.ToString("yyyy-MM-dd HH:mm:ss"), Identific);
                 SettingsErrorLabel.Content = "Применено";
-/*                foreach (LB i in LBs)
+                foreach (LB i in LBs)
                 {
                     if (i.LBLastChange != null && TimeCheck != null && i.LBLastChange != "")
                     {
-                        if (DateTime.ParseExact(i.LBLastChange, "dd-MM-yyyy HH:mm:ss", null) > TimeCheck)
+                        try
                         {
-                            i.LBColor = "LightPink";
-
+                            DateTime lastChange = DateTime.ParseExact(i.LBLastChange, "dd-MM-yyyy HH:mm:ss", null);
+                            if (lastChange > TimeCheck)
+                            {
+                                i.LBColor = "LightPink";
+                            }
+                            else
+                            {
+                                i.LBColor = "White";
+                            }
                         }
-                        else
+                        catch (FormatException)
                         {
                             i.LBColor = "White";
-
                         }
-
                     }
                 }
-*/            }
+            }
         }
 
         private void EditLBWindow_Closed(object sender, System.EventArgs e)

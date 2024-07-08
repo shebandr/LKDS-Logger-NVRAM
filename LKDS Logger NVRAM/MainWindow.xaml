@@ -80,7 +80,7 @@
             <ListBox Width="800" x:Name="LBList" ScrollViewer.HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Left" MinHeight="370">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <Border Background="AliceBlue" BorderBrush="Black" BorderThickness="1" CornerRadius="2" >
+                        <Border Background="{Binding Path=LBColor}" BorderBrush="Black" BorderThickness="1" CornerRadius="2" >
                             <StackPanel Orientation="Horizontal" CanHorizontallyScroll="False">
 
                                 <StackPanel Orientation="Horizontal" MouseLeftButtonDown ="LBRowClick" Tag="{Binding Path=LBId}" >

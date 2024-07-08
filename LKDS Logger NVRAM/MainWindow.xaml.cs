@@ -25,6 +25,7 @@ using System.Globalization;
 using Microsoft.SqlServer.Server;
 using System.Data.Entity.Spatial;
 using System.Windows.Threading;
+using System.Reflection;
 
 namespace LKDS_Logger_NVRAM
 {   
@@ -32,7 +33,7 @@ namespace LKDS_Logger_NVRAM
     {
         public string filePath = "lbs.xml";
         public bool WindowsClosing = false;
-        private string timeCheck;
+        public string timeCheck;
         public bool InputsClear = false;
         public bool LBIsRedacted = false;
         public bool UsingUniversalKey = false;
@@ -99,7 +100,7 @@ namespace LKDS_Logger_NVRAM
         {
             List<LB> lBs = new List<LB>();
 
-
+            // дописать функционал получения блока из файла, формат файла надо спрашивать
 
             return lBs;
         }
@@ -127,6 +128,24 @@ namespace LKDS_Logger_NVRAM
                 timeCheck = LBTimeCheck.Value.ToString();
                 PCIdentific.Text = settingsDict[0]["identific"].ToString();
                 Console.WriteLine("ИДЕНТИФИК: " + settingsDict[0]["identific"].ToString());
+
+                foreach (LB i in LBs)
+                {
+/*                    if (i.LBLastChange != "")
+                    {*/
+                        if (DateTime.ParseExact(i.LBLastChange, "dd-MM-yyyy HH:mm:ss", null) > TimeCheck)
+                        {
+                            i.LBColor = "LightPink";
+
+                        }
+                        else
+                        {
+                            i.LBColor = "White";
+
+                        }
+                    /*}*/
+                }
+
                 return settingsDict;
             }
 
@@ -554,7 +573,23 @@ namespace LKDS_Logger_NVRAM
 
                 lBAddConnect.UpdateSettings(tempData[0]["universal_key"].ToString(), (bool)tempData[0]["uk_use"], (bool)CheckBoxInputClearing.IsChecked, (bool)CheckBoxAddWindowClosing.IsChecked, TimeInterval,DateTimeCheckAfter.Value.ToString("yyyy-MM-dd HH:mm:ss"), DateTimeCheckStart.Value.ToString("yyyy-MM-dd HH:mm:ss"), Identific);
                 SettingsErrorLabel.Content = "Применено";
+                foreach (LB i in LBs)
+                {
+                    /*if (i.LBLastChange != "")
+                    {*/
+                        if (DateTime.ParseExact(i.LBLastChange, "dd-MM-yyyy HH:mm:ss", null) > TimeCheck)
+                        {
+                            i.LBColor = "LightPink";
 
+                        }
+                        else
+                        {
+                            i.LBColor = "White";
+
+                        }
+
+                    /*}*/
+                }
             }
         }
 

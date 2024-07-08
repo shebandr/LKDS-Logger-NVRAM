@@ -108,7 +108,7 @@ namespace LKDS_Logger_NVRAM
                     }
                 }
             }
-            Thread.Sleep(200);
+            Thread.Sleep(300);
             while (true)
             {
   /*              doneEvent.WaitOne();*/
@@ -167,7 +167,19 @@ namespace LKDS_Logger_NVRAM
                 lb.LBLastChange = currentTime;
                 lb.LBLastDump = currentTime;
                 MW.LBs[index] = lb;
-                MW.LBListForDetached[index] = lb;
+
+                DateTime CurrentTimeDate = DateTime.ParseExact(currentTime, "dd-MM-yyyy HH:mm:ss", null);
+                DateTime CheckTimeDate= MW.TimeCheck;
+
+                if (CheckTimeDate > CurrentTimeDate)
+                {
+                    MW.LBs[index].LBColor = "White";
+                }
+                else
+                {
+                    MW.LBs[index].LBColor = "LightPink";
+
+                }
                 UpdateLastChange(lb.LBId, currentTime);
                 UpdateLastDump(lb.LBId, currentTime);
 
@@ -180,6 +192,7 @@ namespace LKDS_Logger_NVRAM
 
                 Console.WriteLine(lb.LBLastDump + " " + MW.LBs[index].LBLastDump);
                 MW.LBListForDetached[index] = lb;
+                MW.LBs[index] = lb;
                 UpdateLastDump(lb.LBId, currentTime);
 
                 //дамп не отличается

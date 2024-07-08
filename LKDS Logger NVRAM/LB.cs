@@ -18,6 +18,7 @@ namespace LKDS_Logger_NVRAM
         private string _lbLastChange;
         private string _lbLastDump;
         private string _lbStatus;
+        private string _lBColor;
 
         public string LBName
         {
@@ -118,6 +119,19 @@ namespace LKDS_Logger_NVRAM
                 if (_lbStatus != value)
                 {
                     _lbStatus = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public string LBColor
+        {
+            get => _lBColor;
+            set
+            {
+                if (_lBColor != value)
+                {
+                    _lBColor = value;
                     OnPropertyChanged();
                 }
             }

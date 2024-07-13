@@ -26,6 +26,7 @@ using Microsoft.SqlServer.Server;
 using System.Data.Entity.Spatial;
 using System.Windows.Threading;
 using System.Reflection;
+using System.ComponentModel;
 
 namespace LKDS_Logger_NVRAM
 {   
@@ -611,10 +612,15 @@ namespace LKDS_Logger_NVRAM
         }
         private async void FastCallAllButtonClick(object sender, EventArgs e)
         {
-            await Dispatcher.BeginInvoke(new System.Action(async () =>
+            try
             {
                 await DetachedAsks.RunOnceAsync(mutexMW, new List<LB>(LBs), this, cancellationTokenSource.Token);
-            }), DispatcherPriority.Background);
+            }
+            catch (OperationCanceledException)
+            {
+                // Обработка отмены операции
+                Console.WriteLine("Операция была отменена.");
+            }
         }
 
         private void EditLBWindow_Closed(object sender, System.EventArgs e)
@@ -622,7 +628,11 @@ namespace LKDS_Logger_NVRAM
             LBIsRedacted = false;
         }
 
-
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            cancellationTokenSource.Cancel();
+            base.OnClosing(e);
+        }
 
         private void UniversalKeyButtonClick(object sender, RoutedEventArgs e)
         {

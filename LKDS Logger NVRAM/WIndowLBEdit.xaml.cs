@@ -213,7 +213,7 @@ namespace LKDS_Logger_NVRAM
                 }
                 LBDataTemp.LBKey = input[2];
                 LBAddErrorLabel.Content = "";
-                LBDataTemp.LBStatus = "нет ответа";
+                LBDataTemp.LBStatus = "не опрошен";
                 LBDataTemp.LBLastChange = " - ";
                 LBDataTemp.LBLastDump = " - ";
                 WMG.LBs.Add(LBDataTemp);

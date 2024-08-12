@@ -55,5 +55,18 @@ namespace LKDS_Logger_NVRAM
             dumpview.Owner = this;
             dumpview.Show();
         }
+
+        private void OpenAllLogsButton_Click(object sender, RoutedEventArgs e)
+        {
+/*            Button button = (Button)sender;
+            int tempId = Int32.Parse(button.Tag.ToString());*/
+            WindowFullLog windowFullLog = new WindowFullLog(currentLB);
+            windowFullLog.Show();
+
+        }
+
+
+
+
     }
 }

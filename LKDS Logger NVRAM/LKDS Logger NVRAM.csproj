@@ -149,6 +149,9 @@
     <Compile Include="WindowDump.xaml.cs">
       <DependentUpon>WindowDump.xaml</DependentUpon>
     </Compile>
+    <Compile Include="WindowFullLog.xaml.cs">
+      <DependentUpon>WindowFullLog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="WindowLBDumps.xaml.cs">
       <DependentUpon>WindowLBDumps.xaml</DependentUpon>
     </Compile>
@@ -170,6 +173,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="WindowDump.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="WindowFullLog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

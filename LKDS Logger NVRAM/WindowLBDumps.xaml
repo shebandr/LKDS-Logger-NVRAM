@@ -17,23 +17,26 @@
             <ColumnDefinition Width="550" />
 
         </Grid.ColumnDefinitions>
-        <Border BorderBrush="LightGray" BorderThickness="1" CornerRadius="2" Width="250" HorizontalAlignment="Left" Height="130" VerticalAlignment="Top"  Grid.Row="0"  Grid.Column="0">
-            <StackPanel Orientation="Horizontal">
-                <StackPanel>
-                    <Label Width="100">Имя ЛБ</Label>
-                    <Label Width="100">Айпи и порт</Label>
-                    <Label Width="100">Идентификатор</Label>
-                    <Label Width="100">Статус</Label>
-                    <Label Width="100">Дата изменения</Label>
+        <Border BorderBrush="LightGray" BorderThickness="1" CornerRadius="2" Width="250" HorizontalAlignment="Left" Height="150" VerticalAlignment="Top"  Grid.Row="0"  Grid.Column="0">
+            <StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <StackPanel>
+                        <Label Width="100">Имя ЛБ</Label>
+                        <Label Width="100">Айпи и порт</Label>
+                        <Label Width="100">Идентификатор</Label>
+                        <Label Width="100">Статус</Label>
+                        <Label Width="100">Дата изменения</Label>
+                    </StackPanel>
+                        <StackPanel>
+                            <Label x:Name="LBName" Width="150"></Label>
+                            <Label x:Name="LBIpPort" Width="150"></Label>
+                            <Label x:Name="LBId" Width="150"></Label>
+                            <Label x:Name="LBStatus" Width="150"></Label>
+                            <Label x:Name="LBLastChange" Width="150"></Label>
+                        </StackPanel>
+                    </StackPanel>
+                <Button Click="OpenAllLogsButton_Click">Открыть общий журнал</Button>
                 </StackPanel>
-                <StackPanel>
-                    <Label x:Name="LBName" Width="150"></Label>
-                    <Label x:Name="LBIpPort" Width="150"></Label>
-                    <Label x:Name="LBId" Width="150"></Label>
-                    <Label x:Name="LBStatus" Width="150"></Label>
-                    <Label x:Name="LBLastChange" Width="150"></Label>
-                </StackPanel>
-            </StackPanel>
         </Border>
         <StackPanel Grid.Row="0"  Grid.Column="1" HorizontalAlignment="left">
             <StackPanel Orientation="Horizontal">

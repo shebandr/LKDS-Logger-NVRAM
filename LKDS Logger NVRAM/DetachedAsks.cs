@@ -51,9 +51,19 @@ namespace LKDS_Logger_NVRAM
                     {
                         for (int i = 0; i<LBs.Count; i++)
                         {
-                            Console.WriteLine("обработка лб номер " + i + " " + LBs[i].LBName);
-                            lBAddConnect.GetDumpFromLBToSQL(LBs[i], i, mw);
-                            Console.WriteLine("конец обработки лб номер " + i);
+                            if (LBs[i].LBProtocolType == "V7")
+                            {
+                                Console.WriteLine("обработка лб номер " + i + " " + LBs[i].LBName);
+                                lBAddConnect.GetDumpFromLBToSQLV7(LBs[i], i, mw);
+                                Console.WriteLine("конец обработки лб номер " + i);
+                            }
+                            if (LBs[i].LBProtocolType == "V5")
+                            {
+                                Console.WriteLine("обработка лб номер " + i + " " + LBs[i].LBName);
+                                lBAddConnect.GetDumpFromLBToSQLV5(LBs[i], i, mw);
+                                Console.WriteLine("конец обработки лб номер " + i);
+
+                            }
                         }
                     }
                     catch (Exception ex)
@@ -92,7 +102,7 @@ namespace LKDS_Logger_NVRAM
                     for (int i = 0; i < LBs.Count; i++)
                     {
                         Console.WriteLine("обработка лб номер " + i + " " + LBs[i].LBName);
-                        lBAddConnect.GetDumpFromLBToSQL(LBs[i], i, mw);
+                        lBAddConnect.GetDumpFromLBToSQLV7(LBs[i], i, mw);
                         Console.WriteLine("конец обработки лб номер " + i);
                     }
                 }

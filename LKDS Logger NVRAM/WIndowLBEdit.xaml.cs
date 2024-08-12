@@ -115,7 +115,7 @@ namespace LKDS_Logger_NVRAM
             if (flag)
             {
                 LB LBTemp = new LB();
-
+                LBTemp.LBProtocolType = LBProtocolVersionComboBox.Text;
                 if (LBConnectType == 0)
                 {
                     LBTemp.LBIpString = LBIPString.Text;
@@ -197,10 +197,11 @@ namespace LKDS_Logger_NVRAM
             if (ErrorList.Count > 0) { flag = false; } else { flag = true; }
             LB LBDataTemp = new LB();
 
+            Console.WriteLine("Версия протокола выбрана: " + LBProtocolVersionComboBox.Text);
 
             if (flag)
             {
-
+                LBDataTemp.LBProtocolType = LBProtocolVersionComboBox.Text;
                 LBDataTemp.LBName = input[0];
                 LBDataTemp.LBId = Int32.Parse(input[1]);
                 LBDataTemp.LBIpString = input[3];

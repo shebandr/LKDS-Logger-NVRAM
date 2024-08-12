@@ -16,6 +16,7 @@
             <RowDefinition Height="25"  />
             <RowDefinition Height="25" />
             <RowDefinition Height="25" />
+            <RowDefinition Height="25" />
         </Grid.RowDefinitions>
 
         <Grid.ColumnDefinitions>
@@ -33,14 +34,19 @@
         <Label Grid.Row="2"  Grid.Column="0">IP адрес</Label>
         <Label Grid.Row="3"  Grid.Column="0">Порт данных</Label>
         <Label Grid.Row="4"  Grid.Column="0">Ключ для этого ЛБ</Label>
-        <Label Grid.Row="5"  Grid.Column="0">Идентификатор </Label>
-        <Label Grid.Row="6"  Grid.Column="0" x:Name="LBAddErrorLabel" Foreground="Red"></Label>
+        <Label Grid.Row="5"  Grid.Column="0">Идентификатор</Label>
+        <Label Grid.Row="6"  Grid.Column="0">Версия протокола</Label>
+        <Label Grid.Row="7"  Grid.Column="0" x:Name="LBAddErrorLabel" Foreground="Red"></Label>
         <TextBox Grid.Row="1" Grid.Column="1" Width="100" x:Name="LBName"></TextBox>
         <TextBox Grid.Row="2" Grid.Column="1" Width="100" x:Name="LBIPString"></TextBox>
         <TextBox Grid.Row="3" Grid.Column="1" Width="100" x:Name="LBPortString"></TextBox>
         <TextBox Grid.Row="4" Grid.Column="1" Width="100" x:Name="LBKey"></TextBox>
         <TextBox Grid.Row="5" Grid.Column="1" Width="100" x:Name="LBID"></TextBox>
-        <Button Grid.Row="6" Grid.Column="1" Width="100" x:Name="buttonLBAdd"></Button>
+        <ComboBox Grid.Row="6" Grid.Column="1" x:Name="LBProtocolVersionComboBox" SelectedIndex="0">
+            <TextBlock>V7</TextBlock>
+            <TextBlock>V5</TextBlock>
+        </ComboBox>
+        <Button Grid.Row="7" Grid.Column="1" Width="100" x:Name="buttonLBAdd"></Button>
         <Button Grid.Row="7" Grid.Column="2" Width="100" x:Name="buttonLBRedactCancel" Click="ButtonClickRedactCancel">Отменить</Button>
 
     </Grid>

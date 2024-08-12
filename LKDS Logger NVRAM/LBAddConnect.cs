@@ -144,7 +144,7 @@ namespace LKDS_Logger_NVRAM
 
         }
 
-        public void GetDumpFromLBToSQL(LB lb, int index, MainWindow MW)
+        public void GetDumpFromLBToSQLV7(LB lb, int index, MainWindow MW)
         {
             Console.WriteLine(lb.LBId + " " + index); 
             Dump ActualDump = GetDump(lb);
@@ -170,6 +170,61 @@ namespace LKDS_Logger_NVRAM
 
                 DateTime CurrentTimeDate = DateTime.ParseExact(currentTime, "dd-MM-yyyy HH:mm:ss", null);
                 DateTime CheckTimeDate= MW.TimeCheck;
+
+                if (CheckTimeDate > CurrentTimeDate)
+                {
+                    MW.LBs[index].LBColor = "White";
+                }
+                else
+                {
+                    MW.LBs[index].LBColor = "LightPink";
+
+                }
+                UpdateLastChange(lb.LBId, currentTime);
+                UpdateLastDump(lb.LBId, currentTime);
+
+                //дамп отличается
+            }
+            else
+            {
+                DumpEdit(lb.LBId);
+                MW.LBs[index].LBLastDump = currentTime;
+
+                Console.WriteLine(lb.LBLastDump + " " + MW.LBs[index].LBLastDump);
+                MW.LBListForDetached[index] = lb;
+                MW.LBs[index] = lb;
+                UpdateLastDump(lb.LBId, currentTime);
+
+                //дамп не отличается
+            }
+        }
+
+        public void GetDumpFromLBToSQLV5(LB lb, int index, MainWindow MW)
+        {
+            Console.WriteLine(lb.LBId + " " + index);
+            Dump ActualDump = GetDump(lb);
+            Console.WriteLine(lb.LBId + " " + index);
+            if (ActualDump.id == -1)
+            {
+                lb.LBStatus = "не отвечает";
+                return;
+            }
+            else
+            {
+                lb.LBStatus = "отвечает";
+            }
+            Dump LastDump = GetLastDump(lb.LBId);
+            string currentTime = DateTime.Now.ToString("dd-MM-yyyy HH:mm:ss");
+
+            if (DumpsComparation(LastDump, ActualDump))
+            {
+                DumpToSQL(ActualDump, lb.LBId);
+                lb.LBLastChange = currentTime;
+                lb.LBLastDump = currentTime;
+                MW.LBs[index] = lb;
+
+                DateTime CurrentTimeDate = DateTime.ParseExact(currentTime, "dd-MM-yyyy HH:mm:ss", null);
+                DateTime CheckTimeDate = MW.TimeCheck;
 
                 if (CheckTimeDate > CurrentTimeDate)
                 {
@@ -237,7 +292,8 @@ namespace LKDS_Logger_NVRAM
             [port] integer NOT NULL,
             [status] char(100) NOT NULL,
             [last_change] char(100) NOT NULL,
-            [last_dump] char(100) NOT NULL
+            [last_dump] char(100) NOT NULL,
+            [protocol_version] char(10) NOT NULL
             );";
                     command.CommandType = CommandType.Text;
                     command.ExecuteNonQuery();
@@ -392,6 +448,7 @@ namespace LKDS_Logger_NVRAM
                             lB.LBLastChange = reader["last_change"].ToString();
                             lB.LBStatus = reader["status"].ToString();
                             lB.LBLastDump = reader["last_dump"].ToString();
+                            lB.LBProtocolType = reader["protocol_version"].ToString();
                         }
                     }
                 }
@@ -408,8 +465,8 @@ namespace LKDS_Logger_NVRAM
             {
                 connection.Open();
 
-                string insertQuery = @"INSERT INTO LBs (id, name, key, ip, port, status, last_change, last_dump) 
-                                   VALUES (@id, @name, @key, @ip, @port, @status, @last_change, @last_dump)";
+                string insertQuery = @"INSERT INTO LBs (id, name, key, ip, port, status, last_change, last_dump, protocol_version) 
+                                   VALUES (@id, @name, @key, @ip, @port, @status, @last_change, @last_dump, @protocol_version)";
 
                 using (SQLiteCommand command = new SQLiteCommand(insertQuery, connection))
                 {
@@ -421,6 +478,7 @@ namespace LKDS_Logger_NVRAM
                     command.Parameters.AddWithValue("@status", lb.LBStatus);
                     command.Parameters.AddWithValue("@last_change", lb.LBLastChange);
                     command.Parameters.AddWithValue("@last_dump", lb.LBLastDump);
+                    command.Parameters.AddWithValue("@protocol_version", lb.LBProtocolType);
 
                     int rowsAffected = command.ExecuteNonQuery();
                 }
@@ -472,7 +530,8 @@ namespace LKDS_Logger_NVRAM
                                port = @port, 
                                status = @status, 
                                last_change = @last_change, 
-                               last_dump = @last_dump 
+                               last_dump = @last_dump,
+                               protocol_version = @protocol_version
                            WHERE id = @id";
 
                 using (SQLiteCommand command = new SQLiteCommand(updateQuery, connection))
@@ -485,6 +544,7 @@ namespace LKDS_Logger_NVRAM
                     command.Parameters.AddWithValue("@status", lB.LBStatus);
                     command.Parameters.AddWithValue("@last_change", lB.LBLastChange);
                     command.Parameters.AddWithValue("@last_dump", lB.LBLastDump);
+                    command.Parameters.AddWithValue("@protocol_version", lB.LBProtocolType);
 
                     int rowsAffected = command.ExecuteNonQuery();
                 }

@@ -19,7 +19,7 @@ namespace LKDS_Logger_NVRAM
         private string _lbLastDump;
         private string _lbStatus;
         private string _lBColor;
-
+        private string _lBProtocolType;
         public string LBName
         {
             get => _lbName;
@@ -136,6 +136,20 @@ namespace LKDS_Logger_NVRAM
                 }
             }
         }
+
+        public string LBProtocolType
+        {
+            get => _lBProtocolType;
+            set
+            {
+                if (_lBProtocolType != value)
+                {
+                    _lBProtocolType = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
 
         public event PropertyChangedEventHandler PropertyChanged;
 

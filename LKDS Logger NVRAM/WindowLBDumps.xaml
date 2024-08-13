@@ -17,7 +17,8 @@
             <ColumnDefinition Width="550" />
 
         </Grid.ColumnDefinitions>
-        <Border BorderBrush="LightGray" BorderThickness="1" CornerRadius="2" Width="250" HorizontalAlignment="Left" Height="150" VerticalAlignment="Top"  Grid.Row="0"  Grid.Column="0">
+        <StackPanel Grid.Row="0"  Grid.Column="0">
+        <Border BorderBrush="LightGray" BorderThickness="1" CornerRadius="2" Width="250" HorizontalAlignment="Left" Height="130" VerticalAlignment="Top"  >
             <StackPanel>
                 <StackPanel Orientation="Horizontal">
                     <StackPanel>
@@ -35,9 +36,11 @@
                             <Label x:Name="LBLastChange" Width="150"></Label>
                         </StackPanel>
                     </StackPanel>
-                <Button Click="OpenAllLogsButton_Click">Открыть общий журнал</Button>
+                
                 </StackPanel>
         </Border>
+            <Button Click="OpenAllLogsButton_Click" Margin="5 5 5 5">Открыть общий журнал</Button>
+        </StackPanel>
         <StackPanel Grid.Row="0"  Grid.Column="1" HorizontalAlignment="left">
             <StackPanel Orientation="Horizontal">
                 <TextBlock Margin="5 0 0 0"> Порядковый номер </TextBlock>

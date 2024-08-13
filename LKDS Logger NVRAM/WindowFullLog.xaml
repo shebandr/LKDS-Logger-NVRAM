@@ -4,9 +4,22 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:LKDS_Logger_NVRAM"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
-        Title="WindowFullLog" Height="450" Width="800">
-    <Grid>
+        Title="WindowFullLog" Height="600" Width="800">
+    <StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="5">
+            <TextBlock>айди блока: </TextBlock>
+            <TextBlock Width="60" x:Name="TextBlockId" Margin="5 0 0 0"></TextBlock>
+            <TextBlock>Временной интервал с</TextBlock>
+            <xctk:DateTimePicker Width="170" x:Name="TimeStart" Margin="5 0 5 0"></xctk:DateTimePicker>
+            <TextBlock>до</TextBlock>
+            <xctk:DateTimePicker Width="170" x:Name="TimeStop" Margin="5 0 5 0"></xctk:DateTimePicker>
+            <Button Click="ButtonSettingsApply_Click">Применить фильтр</Button>
+        </StackPanel>
+        <!--горизонтальный список времени изменений-->
+
+        <!--вертикальый список изменений-->
         
-    </Grid>
+    </StackPanel>
 </Window>

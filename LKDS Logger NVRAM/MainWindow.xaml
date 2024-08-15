@@ -36,7 +36,7 @@
                     <ColumnDefinition Width="100" />
                     <ColumnDefinition Width="30" />
                     <ColumnDefinition Width="200" />
-                    <ColumnDefinition Width="200" />
+                    <ColumnDefinition Width="220" />
                 </Grid.ColumnDefinitions>
                 <Label Grid.Row="0"  Grid.Column="0">Ключ для всех ЛБ</Label>
                 <Label Grid.Row="1"  Grid.Column="0">Использовать ключ для новых ЛБ</Label>
@@ -57,16 +57,16 @@
                 <Label Grid.Row="3"  Grid.Column="3">Идентифик.</Label>
                 <Label Grid.Row="4"  Grid.Column="3" x:Name="SettingsErrorLabel"></Label>
                 <Label Grid.Row="5" Grid.Column="3">Экстренный опрос</Label>
-                <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="4" >
+                <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="4">
                     <xctk:IntegerUpDown x:Name="HoursUpDown" Minimum="0" Maximum="96" Width="45" Margin=" 0 2 2 2"/>
                     <TextBlock Text=":" VerticalAlignment="Center" Margin="2"/>
                     <xctk:IntegerUpDown x:Name="MinutesUpDown" Minimum="0" Maximum="59" Width="45" Margin="2 2 0 2"/>
                 </StackPanel>
-                <xctk:DateTimePicker Grid.Row="1" Grid.Column="4" Width="170" x:Name="LBTimeCheck" Margin="0 0 30 0"></xctk:DateTimePicker>
-                <xctk:DateTimePicker Grid.Row="2" Grid.Column="4" Width="170" x:Name="LBCheckStart" Margin="0 0 30 0"></xctk:DateTimePicker>
-                <TextBox Grid.Row="3" Grid.Column="4" Width="100" x:Name="PCIdentific" Margin=" 0 0 100 0"></TextBox>
-                <Button Grid.Row="4" Grid.Column="4" Width="100" x:Name="SettingsApplyButton" Click="SettingsApplyButtonClick" Margin=" 0 0 100 0">Применить</Button>
-                <Button Grid.Row="5" Grid.Column="4" Width="100" x:Name="FastCallAll" Click="FastCallAllButtonClick" Margin=" 0 0 100 0">Опросить</Button>
+                <xctk:DateTimePicker Grid.Row="1" Grid.Column="4" Width="185" x:Name="LBTimeCheck" Margin="0 0 35 0"></xctk:DateTimePicker>
+                <xctk:DateTimePicker Grid.Row="2" Grid.Column="4" Width="185" x:Name="LBCheckStart" Margin="0 0 35 0"></xctk:DateTimePicker>
+                <TextBox Grid.Row="3" Grid.Column="4" Width="100" x:Name="PCIdentific" Margin=" 0 0 120 0"></TextBox>
+                <Button Grid.Row="4" Grid.Column="4" Width="100" x:Name="SettingsApplyButton" Click="SettingsApplyButtonClick" Margin=" 0 0 120 0">Применить</Button>
+                <Button Grid.Row="5" Grid.Column="4" Width="100" x:Name="FastCallAll" Click="FastCallAllButtonClick" Margin=" 0 0 120 0">Опросить</Button>
             </Grid>
             <StackPanel Orientation="Horizontal">
                 <TextBlock Margin="5 0 0 0" Width="60" TextAlignment="Center">Id</TextBlock>

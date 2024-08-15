@@ -146,6 +146,7 @@
     <Compile Include="ByteFromDump.cs" />
     <Compile Include="DetachedAsks.cs" />
     <Compile Include="Dump.cs" />
+    <Compile Include="UniversalVar.cs" />
     <Compile Include="WindowDump.xaml.cs">
       <DependentUpon>WindowDump.xaml</DependentUpon>
     </Compile>

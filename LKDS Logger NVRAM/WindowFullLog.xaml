@@ -12,14 +12,18 @@
             <TextBlock>айди блока: </TextBlock>
             <TextBlock Width="60" x:Name="TextBlockId" Margin="5 0 0 0"></TextBlock>
             <TextBlock>Временной интервал с</TextBlock>
-            <xctk:DateTimePicker Width="170" x:Name="TimeStart" Margin="5 0 5 0"></xctk:DateTimePicker>
+            <xctk:DateTimePicker Width="185" x:Name="TimeStart" Margin="5 0 5 0"></xctk:DateTimePicker>
             <TextBlock>до</TextBlock>
-            <xctk:DateTimePicker Width="170" x:Name="TimeStop" Margin="5 0 5 0"></xctk:DateTimePicker>
+            <xctk:DateTimePicker Width="185" x:Name="TimeStop" Margin="5 0 5 0"></xctk:DateTimePicker>
             <Button Click="ButtonSettingsApply_Click">Применить фильтр</Button>
         </StackPanel>
-        <!--горизонтальный список времени изменений-->
+        <StackPanel Orientation="Horizontal">
+            <!--вертикальный список названий байт/бит данных-->
 
-        <!--вертикальый список изменений-->
+            <!--горизонтальный список времени изменений-->
         
+        
+        <!--вертикальый список изменений-->
+        </StackPanel>
     </StackPanel>
 </Window>
